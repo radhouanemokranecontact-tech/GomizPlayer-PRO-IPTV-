@@ -1,6 +1,8 @@
-# GomizPlayer IPTV — تقرير مطابقة واجهة Android مع واجهة Windows (99%)
+# [Historical] GomizPlayer IPTV — تقرير مطابقة واجهة Android مع واجهة Windows (99%)
 تاريخ: 2026-11-17
 الحالة: **تقرير قبل التنفيذ** — لا يوجد أي تغيير في الكود بعد.
+
+> هذه تقديرات وخطة مؤرخة قبل التنفيذ وليست قياساً أو حالة حالية لتطبيق Windows أو Android. / This is a pre-implementation estimate and plan, not a current measurement or status of either app.
 
 ---
 

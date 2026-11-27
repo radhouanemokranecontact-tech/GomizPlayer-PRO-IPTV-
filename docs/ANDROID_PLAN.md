@@ -4,6 +4,10 @@
 نطاق: تطبيق Android أصيل (Kotlin) لكل من **Google TV / Android TV** و**هواتف/أجهزة Android**، بكامل ميزات GomizPlayer IPTV (Windows Electron).
 التوزيع: APK مباشر (GitHub) **ثم** Google Play Store.
 
+> **تنبيه النطاق والحالة:** هذه وثيقة تخطيط تاريخية لتطبيق Android منفصل، وليست وصفاً لما نُفذ في تطبيق Windows أو حالة تطبيق Android الحالية. آخر مراجعة لهذه الخطة: 2026-11-17.
+>
+> **Scope/status:** This is a historical plan for a separate Android app. It does not describe the Windows implementation or the current Android app status. Plan last reviewed: 2026-11-17.
+
 ---
 
 ## 1. الرؤية والهدف

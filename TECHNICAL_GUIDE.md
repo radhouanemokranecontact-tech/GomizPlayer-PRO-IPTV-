@@ -1,94 +1,69 @@
-# Gomiz Player IPTV — الدليل التقني الشامل (Windows)
+# GomizPlayer PRO IPTV — الدليل التقني | Technical Guide
 
-[English](#english) | [العربية](#العربية)
-
-> يصف هذا الدليل الشيفرة الحالية في `package.json` (الإصدار **2.0.2**). الاختبارات أو الميزات غير المثبتة موضحة كقيود.
-> آخر تحديث: **2026-11-27**.
+**الإصدار الموصوف / Version described:** 2.0.2 · **آخر مراجعة / Reviewed:** 2026-11-27
+في PowerShell استخدم `npm.cmd` إذا كان تشغيل ملفات `npm.ps1` ممنوعاً بسياسة النظام. / In PowerShell, use `npm.cmd` when the system execution policy blocks `npm.ps1`.
+مصدر حقائق الإصدار هو الشيفرة و`package.json` ونتائج الاختبارات المسجلة في [`REPORT_TEST_RESULTS_AR.md`](REPORT_TEST_RESULTS_AR.md). لا تُعدّ الميزات غير المختبرة وعود توافق.
 
 ## العربية
 
-### 1) ما هو هذا التطبيق؟
-تطبيق سطح مكتب Windows مبني بـ **Electron** + JavaScript، يعمل كمرافق لتطبيق الأندرويد. يوفّر تشغيل IPTV/VOD وإدارة المصادر على الكمبيوتر، بواجهة عربية/إنجليزية (EN/AR فقط — FR أُزيل لأنه غير مكتمل). الإصدار الحالي في `package.json`: **2.0.2**.
+### ما التطبيق؟
+مشغّل IPTV/VOD لسطح مكتب Windows مبني بـ Electron وJavaScript. يدير مصادر المستخدم ويعرض البث المباشر والأفلام والمسلسلات، ولا يوفّر محتوى أو اشتراك IPTV.
 
-### 2) ماذا يفعل بالضبط؟ (من تجربة الاستخدام)
+### الوظائف الموجودة
+- **المصادر:** قوائم M3U/M3U8 وبيانات Xtream ورابط مباشر؛ يمكن أن تتضمن العناصر رؤوس HTTP.
+- **المكتبة:** Live TV، دليل البرامج، الأفلام، المسلسلات، المفضلة، سجل المشاهدة والبحث.
+- **التشغيل:** HLS عبر hls.js، وMPEG-TS/M2TS عبر mpegts.js عندما يدعم runtime المتصفح، وMPEG-DASH عبر dash.js، إضافة إلى الوسائط التي يدعمها Chromium أصلياً.
+- **Multiview:** حتى ست خانات بأربعة تخطيطات، مع اختيار صوت الخانة النشطة، وحفظ التخطيط/القنوات والتحويل للمصدر البديل عند فشل البث إذا توفر بديل.
+- **أدوات PRO:** فحص صحة القنوات، إخفاء القنوات المعطلة اختيارياً، كشف التكرار، Catch-up المعتمد على بيانات المزود، التسجيل المجدول، الرقابة الأبوية، وتصدير M3U.
+- **التنزيل والتسجيل:** إدارة التنزيلات وتسجيلات البث عبر FFmpeg عند توفره؛ التوافق متعلق بالبث والترميز والمزود.
+- **الإعدادات والبيانات:** واجهة عربية/إنجليزية مع RTL، إعدادات ومصادر محلية، نسخ احتياطية واستعادة، تشخيص وسجلات محلية. تُخزّن بيانات الدخول عبر Electron `safeStorage` حيث يدعم النظام ذلك.
+- **الصفحة الرئيسية:** ساعة، طقس وأوقات صلاة. طلبات الموقع/الطقس والصلاة تستخدم خدمات خارجية؛ راجع [`PRIVACY.md`](PRIVACY.md).
 
-**القائمة الجانبية:** Home · Live TV · Movies · Series · My List TV · My Movies & Series · Downloads · Recordings · Sources · Settings + بحث علوي + زر «Add source» + «TV Guide».
+### التحديثات والبناء
+- التحديثات تعتمد `electron-updater` وبيان `latest.yml` موقعاً بـ Ed25519؛ يتحقق التطبيق من البيان والملف قبل التنزيل. التراجع الآمن مرتبط بحارس الإصدار.
+- `npm run dist` يبني NSIS وPortable x64 ويضع النتائج تحت `dist/v<version>/`.
+- إصدار 2.0.2 بُني محلياً وبُني أيضاً على GitHub Actions. لم يُنشر Release: سر `UPDATE_SIGNING_PRIVATE_KEY` غير مضبوط في المستودع الجديد، لذلك لم يوقّع CI البيان ولم ينشئ مسودة الإصدار.
+- ملفات exe المحلية وبيان `dist/latest.yml` غير الموقّع ليست أصول إصدار منشورة. ملفات Windows لا تحمل توقيع Authenticode.
 
-**الرئيسية (Home):**
-- ثلاثة مربعات widgets **بخلفيات ديناميكية** (كل مربع مستقل):
-  - ساعة تناظرية عقاربها تتحرك + خلفية+Fجر/نهار/غروب/ليل.
-  - طقس برسومات SVG واقعية (شمس بأشعة، قمر بفوهات ونجوم، غيوم، مطر، ثلج، برق) + خلفية تتبدل مع الحالة.
-  - أوقات صلاة بعدّ تنازلي + خلفية ذهبية عند بقاء <30 دقيقة.
-  - **كل مربع فيه زر تحديث** يُعيد تحديد الموقع ويُحدّث البيانات فوراً.
-- أقسام قابلة للترتيب: بطل، أكمل المشاهدة، المفضلة، مباشر, أُضيف حديثاً، مجموعات — مع كثافة (compact/comfortable/large) وعدد عناصر قابل للضبط.
+### الفحوص المنفذة والحدود
+- `npm run test:ui` نجح محلياً: UI Smoke وMultiview، بما فيها عينة HLS H.264. يمكن اختيار Chrome المثبت عبر `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` عند الحاجة.
+- نجحت مجموعات regression الخمس عشرة في مسار إصدار GitHub، كما نجح بناء الحزم والتحقق من وجودها.
+- `npm audit`: صفر ثغرات معلنة بين 309 تبعيات في الفحص المسجل.
+- لم يُختبر MPEG-DASH مع مزود فعلي، ولا يُعلن دعم DRM. اختبارات الوسائط المحلية لا تثبت التوافق مع كل مزودي IPTV أو إعدادات CORS والترميزات.
+- الرقابة الأبوية مرشح محلي يتطلب PIN داخل التطبيق؛ ليست حاجز نظام تشغيل أمام من يملك وصولاً إلى ملفات المستخدم.
+- ملفات Windows غير موقعة Authenticode، وقد يعرض Windows تنبيه ناشر غير معروف.
 
-**المشغّل (Player):**
-- تشغيل HLS (hls.js) وMPEG-TS (mpegts.js) وMPEG-DASH (dash.js) وملفات الوسائط المدعومة أصلياً، مع لوحة تحكم كاملة: play/pause، seek، سرعة، جودة، صوت، ترجمة، نسبة أبعاد، ملء شاشة، كتم، لقطة شاشة، مؤقت نوم، A-B loop، mini-player، دائماً في المقدمة، إحصاءات.
-- **درج القنوات** بمجموعات/بحث/مفضلة♥ + NOW/NEXT.
-- عند فشل بث: نافذة error مع Retry / القناة التالية / **Close → يرجع لقائمة القنوات** (لا للرئيسية).
-
-**الدليل (EPG):** جدول برامج مع «الآن/التالي» وتنقّل.
-
-**المصادر:** M3U/M3U8 · Xtream Codes · رابط مفرد، مع رؤوس HTTP وبيانات دخول مُشفّرة (`secrets.js` عبر Electron `safeStorage`).
-
-**الإعدادات (تبويبات):** General · Player · Subtitles · TV Guide · Storage · System · About + SourcesPanel/Profile
-- اللغة EN/AR · الثيم · اللون · التخطيط · الشبكة/الوكيل · الترجمة · قفل التطبيق (Pin) · الخصوصية/القياس (موافقة صريحة) · النسخ الاحتياطي · التحديثات.
-- تصدير/استيراد نسخة JSON + «Back up now» + «View recent errors».
-
-**التحديثات:** فحص عند الإقلاع + نافذة تلقائية عند وجود إصدار + نسبة تنزيل مباشرة + زر تثبيت. **التحديث تفاضلي** (blockmap) و**manifest موقّع Ed25519** يُتحقَّق منه قبل التنزيل. تراجع آمن: نسخة بيانات قبل التثبيت + كشف تعطّل متكرر + حالة في About.
-
-### 3) التفاصيل التقنية (للمطوّرين/الوكلاء)
-
-| العنصر | الحقيقة في الكود |
-|---|---|
-| الإصدار | 2.0.2 |
-| إطار العمل | Electron + JS · `electron-builder` 26 · `electron-updater` 6.8.11 |
-| محرك الفيديو | hls.js + mpegts.js + dash.js (MPEG-DASH) داخل الرندرر |
-| التخزين | `gomizplayer.json` في `userData` + نسخ في `userData/backups` (3 دوّارة) |
-| الأسرار | `safeStorage` + تشفير في `secrets.js` |
-| IPC | **67 handler** (مصادر، مكتبة، تنزيلات، تسجيل، EPG، ملفات，إعدادات，نوافذ，تحديث，نسخ，تشخيص) |
-| i18n | 482 مفتاح EN وAR متطابقان · RTL كامل |
-| الأمان | CSP صارم · `assertTrustedSender` على كل IPC · توقيع manifest |
-| التشخيص | `userData/logs/app.log` (دوّار 2MB) + عارض أخطاء محلي + تصدير شامل |
-| البناء | `npm run dist` → NSIS + portable + blockmap + latest.yml (موقّع) |
-| الاختبارات | **7 suites** في CI — كلها ناجحة |
-| التنظيم | `postdist` يرتب المخرجات في مجلدات `dist/vX.Y.Z/` |
-
-### 4) حدود معروفة (صدقاً)
-- لا Stalker / Chromecast/DLNA (مؤجّلة — `ROADMAP.md`).
-- لا قنوات beta ولا rollout تدريجي.
-- **DASH (.mpd):** محرك dash.js مضمّن محلياً ويشغّل محتوى MPEG-DASH المتوافق مع MSE؛ نجاح التشغيل يعتمد على الترميز والخادم وCORS. DRM ليس مضموناً لهذا التطبيق، ولا يُعلن دعم Widevine/PlayReady/FairPlay.
-- المُثبّت 144MB مقصود (تشغيل مستقل بالكامل، بلا web installer — انظر README).
-- التوقيع التجاري (Authenticode) يحتاج شهادة مدفوعة — لم يُنفّذ.
-
----
+### بنية مختصرة
+`src/main/` عمليات Electron والتخزين وIPC والشبكة والأسرار والتحديثات؛ `src/renderer/` الواجهة والمشغلات وMultiview؛ `src/shared/` منطق التصنيف المشترك؛ `tools/` اختبارات وأدوات التطوير؛ `.github/workflows/` فحوص CI وبناء مسودة الإصدار.
 
 ## English
 
-Gomiz Player IPTV Desktop is a **Windows Electron** companion app (v2.0.2) for managing and playing IPTV/VOD, with full EN/AR UI (RTL). FR was removed because it was incomplete.
+### What the app is
+A Windows desktop IPTV/VOD player built with Electron and JavaScript. It manages user-provided sources and displays live TV, movies, and series; it does not provide IPTV content or subscriptions.
 
-**What it actually does:** Home with three independent widgets — a live analog clock, realistic SVG weather, and prayer times — all with dynamic backgrounds following time/weather/prayer proximity and a per-card refresh button. A player with a full control chrome and a channel drawer (categories, search, favorites, NOW/NEXT); a stream-error dialog whose Close returns to the channel list. EPG guide, movies/series, favorites, profiles, downloads and HLS recordings with local MP4 remux. M3U/Xtream/single sources with encrypted credentials. 10+ settings tabs, backup/restore, signed differential updates with a startup update popup, safe rollback, and local diagnostics.
+### Implemented features
+- **Sources:** M3U/M3U8 playlists, Xtream credentials, and direct stream URLs; playlist items may include HTTP headers.
+- **Library:** Live TV, TV guide, movies, series, favorites, viewing history, and search.
+- **Playback:** HLS through hls.js; MPEG-TS/M2TS through mpegts.js when supported by the browser runtime; MPEG-DASH through dash.js; and media supported natively by Chromium.
+- **Multiview:** Up to six tiles across four layouts, active-tile audio selection, saved layout/channels, and failover when playback fails and an alternative is available.
+- **PRO tools:** Channel health checks, optional hiding of failed channels, duplicate detection, provider-dependent catch-up, scheduled recording, parental filtering, and M3U export.
+- **Downloads and recording:** Download management and stream recording through FFmpeg where available; compatibility depends on the stream, codec, and provider.
+- **Settings and data:** Arabic/English UI with RTL, local sources/settings, backup and restore, local diagnostics and logs. Credentials use Electron `safeStorage` where supported by the OS.
+- **Home:** Clock, weather, and prayer-time widgets. Location, weather, and prayer-time requests use external services; see [`PRIVACY.md`](PRIVACY.md).
 
-**Under the hood:** 67 IPC handlers · `gomizplayer.json` + rolling backups · Electron `safeStorage` · 482 matched EN/AR keys · strict CSP + trusted-sender checks · Ed25519-signed update manifest verified before download · CI checks · archived historical manifest kept in `docs/archive/`.
+### Updates and builds
+- Updates use `electron-updater` and an Ed25519-signed `latest.yml`; the app validates the manifest and artifact before download. Safe rollback is handled by the update guard.
+- `npm run dist` builds the NSIS installer and x64 portable executable under `dist/v<version>/`.
+- Version 2.0.2 was built locally and by GitHub Actions. No GitHub Release was published: the new repository lacks `UPDATE_SIGNING_PRIVATE_KEY`, so CI did not sign the manifest or create a draft release.
+- Local executables and the unsigned `dist/latest.yml` are not published release assets. Windows executables do not have Authenticode signatures.
 
-**Known limits:** no Stalker/Cast (Multiview and provider-dependent Catch-up are available in PRO), no beta channels, 144MB installer (deliberate), no Authenticode signing yet. See ROADMAP.md.
+### Verification and limits
+- Local `npm run test:ui` passed both UI Smoke and Multiview, including an H.264 HLS fixture. Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to use installed Chrome when needed.
+- All 15 release regression groups passed in GitHub Actions; package builds and artifact-presence checks passed.
+- `npm audit` reported zero known vulnerabilities across 309 dependencies in the recorded scan.
+- MPEG-DASH was not tested with a real provider; DRM support is not claimed. Local media tests do not establish compatibility with every IPTV provider, codec, or CORS configuration.
+- Parental controls are an in-app filter requiring an app PIN, not an OS security boundary against someone with access to the user's files.
+- Windows binaries are not Authenticode-signed; Windows may show an unknown-publisher warning.
 
-
----
-
-## GomizPlayer PRO 2.0 — architecture addendum
-
-| Module | File | Notes |
-|---|---|---|
-| Net guard | `src/main/net-guard.js` | SSRF-safe client: connect-time address validation, per-hop redirects, size caps incl. decompression |
-| Duplicates | `src/main/pro/dedupe.js` | `tvg-id` or normalised name; quality ranking; health-aware ordering |
-| Health | `src/main/pro/health.js` | `probe()` + bounded-concurrency `scanItems()`; cancellable; LAN origins unrestricted, public origins guarded |
-| Catch-up | `src/main/pro/catchup.js` | `xc`/`append`/`default`/`shift`/`flussonic`, template placeholders, window + future checks |
-| Scheduler | `src/main/pro/scheduler.js` | injected clock/start/stop; conflict, missed, late-start, early-exit, restart recovery |
-| Parental | `src/main/pro/parental.js`, `flags.js` | hides without ever un-hiding provider-hidden items; PIN enforced in `pro:parental:set` |
-| Export | `src/main/pro/export.js` | M3U writer (round-trips through `m3u.js`) |
-| IPC | `src/main/pro/ipc.js` | `pro:*` channels, all sender-checked; caches `health` map in the app cache dir |
-| UI | `src/renderer/pro.js` | PRO page + catch-up modal; EN/AR strings; text via `textContent` only |
-
-**Data safety:** `productName` changed to *GomizPlayer PRO IPTV*, but `userData` is pinned to the original `GomizPlayer IPTV` folder, so upgrades keep all data.
-**Tests:** `test:net-guard`, `test:hardening`, `test:pro`, `test:pro-ipc` run in CI. Run `npm run test:ui` for Playwright UI checks; after `npm install`, install Chromium with `npx playwright install chromium`. The Multiview UI test skips its media check when FFmpeg is unavailable.
+### Project structure
+`src/main/` contains Electron processes, storage, IPC, networking, secrets, and updates; `src/renderer/` contains UI, playback, and Multiview; `src/shared/` contains shared classification logic; `tools/` contains tests and development utilities; `.github/workflows/` contains CI and release-draft workflows.
