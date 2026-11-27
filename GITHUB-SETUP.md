@@ -1,74 +1,36 @@
-# رفع GomizPlayer IPTV على GitHub وتحديثه مستقبلاً
+# إعداد المستودع والإصدارات
 
-هذا الملف يجهّزك لرفع المشروع بعد تثبيت Git.
+المستودع الرسمي لتطبيق Windows هو:
 
-## 1) المتطلبات (مرة واحدة)
-- تثبيت **Git for Windows**: https://git-scm.com/download/win
-- إنشاء حساب/تسجيل الدخول على **GitHub**: https://github.com/
-- (اختياري للتطوير/البناء) Node.js و npm مثبتان.
+`https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-`
 
-> ملاحظة: المجلدان `node_modules/` و`dist/` مستبعدان عبر `.gitignore` ولن يتم رفعهما (وهذا صحيح).
+## استنساخ المشروع
 
-## 2) إنشاء المستودع على GitHub
-1. افتح GitHub → **New repository**.
-2. اختر اسم المستودع (مثلاً `GomizPlayer-IPTV`).
-3. لا تُفعّل إضافة README أو .gitignore أو License (موجودة محلياً).
-4. انسخ رابط المستودع، مثل: `https://github.com/<USERNAME>/GomizPlayer-IPTV.git`
-
-## 3) الرفع الأول (بعد تثبيت Git)
-افتح **PowerShell** أو **CMD** داخل مجلد المشروع:
-`C:\Users\Radhouanemokrane\Documents\Projet par défaut\netfly-clone`
-
-نفّذ الأوامر التالية:
-
-```bat
-git init
-git add .
-git commit -m "Initial commit: GomizPlayer IPTV"
-git branch -M main
-git remote add origin https://github.com/<USERNAME>/<REPO>.git
-git push -u origin main
+```powershell
+git clone https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-.git
+cd GomizPlayer-PRO-IPTV-
+npm ci
+npm start
 ```
 
-- استبدل `<USERNAME>` و`<REPO>` بالقيم الصحيحة.
-- عند الطلب، سجّل الدخول إلى GitHub (يفضّل **Personal Access Token** أو Git Credential Manager).
-- للتحقق من الحالة لاحقاً: `git status`
+يستبعد `.gitignore` مجلدي `node_modules/` و`dist/` ومخرجات البناء والملفات التنفيذية. تُحفظ ملفات المصدر والوثائق والاختبارات في Git، أما ملفات التثبيت فترفع كأصول لإصدار GitHub.
 
-## 4) تحديث الكود على GitHub (بعد أي تعديل)
-```bat
-git add .
-git commit -m "وصف التعديل"
-git push
+## فحوصات وبناء Windows
+
+```powershell
+npm run test:ui
+npm audit
+npm run dist
 ```
 
-## 5) إصدار نسخة جديدة من التطبيق (.exe) للمستخدمين
-المشروع مُجهّز بـ electron-builder (سكربت `dist`).
+ينشئ `npm run dist` مثبّت NSIS ونسخة Portable x64 داخل `dist/v<version>/`، ويحدّث `dist/latest.yml`. تتطلب اختبارات الواجهة Playwright وChromium؛ يمكن تحديد متصفح Chrome المثبت عبر متغير البيئة `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`.
 
-1. حدّث رقم الإصدار في `package.json` (مثلاً `1.0.1`).
-2. ابنِ الحزم (من CMD أو PowerShell، وإن لزم استخدم `cmd /c`):
-```bat
-cmd /c npm install
-cmd /c npm run dist
-```
-3. ستجد الملفات في `dist/`:
-   - `GomizPlayer IPTV Setup <version>.exe` (مثبّت)
-   - `GomizPlayer IPTV <version>.exe` (Portable)
-4. على GitHub أنشئ **Release** جديد:
-   - Tag مثل `v1.0.1`
-   - ارفع ملفات `.exe` (من `dist/`) في Assets
-   - اكتب ملاحظات الإصدار ثم انشره
+## إصدار تحديث موقّع
 
-> هذا يوفر تحديثاً **يدوياً** (المستخدم يحمّل النسخة الجديدة). التحديث التلقائي داخل التطبيق (electron-updater) يحتاج إعداداً إضافياً لاحقاً.
+1. حدّث رقم الإصدار في `package.json` و`package-lock.json`، ثم شغّل الاختبارات والبناء.
+2. اضبط سر المستودع `UPDATE_SIGNING_PRIVATE_KEY` بمفتاح Ed25519 المطابق للمفتاح العام المضمّن في التطبيق. لا تحفظ المفتاح الخاص في ملفات المشروع أو Git.
+3. افتح GitHub Actions واختر **Build PC release draft** ثم **Run workflow** على `main`، وأدخل وسم الإصدار المطابق، مثل `v2.0.2`.
+4. يتحقق المسار من الاختبارات ورقم الإصدار، يبني NSIS وPortable، يوقّع `latest.yml`، ويتحقق من التوقيع ثم ينشئ إصداراً مسودة يتضمن المثبّت والنسخة المحمولة وملف blockmap والبيان الموقّع.
+5. راجع المسودة وأصولها قبل نشرها. ملفات Windows لا تحمل توقيع Authenticode حالياً؛ قد يعرض Windows تحذير ناشر غير معروف.
 
-## 6) توقيع الإصدارات
-- حالياً `verifyUpdateCodeSignature` معطّل في إعدادات التحديث داخل التطبيق (لا يتم التحقق من توقيع التحديثات برمجياً).
-- عند تجهيز إصدار رسمي للتوزيع، فعّل توقيع الشفرة (Code Signing) لحزم Windows (مثبّت/Portable)، ثم فعّل التحقق من توقيع التحديثات (`verifyUpdateCodeSignature`) قبل الاعتماد على التحديث التلقائي.
-- احتفظ بالشهادات/المفاتيح الخاصة بشكل آمن خارج المستودع ولا ترفعها إلى GitHub.
-
-## 7) أوامر مفيدة
-```bat
-git log --oneline -n 10
-git remote -v
-git tag v1.0.1
-git push origin v1.0.1
-```
+إذا لم يكن السر مضبوطاً، يفشل مسار الإصدار عمداً ولا ينشر بيان تحديث غير موقّع.
