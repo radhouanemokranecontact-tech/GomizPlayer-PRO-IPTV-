@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag to create (must match package.json version, for example v2.0.1)
+        description: Release tag to create (must match package.json version, for example v2.0.2)
         required: true
         type: string
-        default: v2.0.1
+        default: v2.0.2
 
 permissions:
   contents: write
