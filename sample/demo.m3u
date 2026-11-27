@@ -1,0 +1,46 @@
+#EXTM3U
+
+#EXTINF:-1 tvg-id="demo.bbb" tvg-name="Big Buck Bunny" group-title="Demo Movies",Big Buck Bunny (HLS)
+https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8
+
+#EXTINF:-1 tvg-id="demo.tos" tvg-name="Tears of Steel" group-title="Demo Movies",Tears of Steel (HLS)
+https://test-streams.mux.dev/tos_ismc/main.m3u8
+
+#EXTINF:-1 tvg-id="demo.sintel" tvg-name="Sintel" group-title="Demo Movies",Sintel (HLS)
+https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8
+
+#EXTINF:-1 tvg-id="demo.bbb.mp4" tvg-name="Big Buck Bunny (MP4)" group-title="Demo Movies",Big Buck Bunny (MP4)
+https://www.w3schools.com/html/mov_bbb.mp4
+
+#EXTINF:-1 tvg-id="demo.flower" tvg-name="Flower" group-title="Demo Movies",Flower (MP4)
+https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4
+
+#EXTINF:-1 tvg-id="demo.sample5" tvg-name="Sample Clip" group-title="Demo Movies",Sample Clip (MP4)
+https://download.samplelib.com/mp4/sample-5s.mp4
+
+#EXTINF:-1 tvg-id="demo.bipbop" tvg-name="Apple BipBop" group-title="Demo Series",BipBop · Episode 1
+https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8
+
+#EXTINF:-1 tvg-id="demo.series2" tvg-name="Short Clip" group-title="Demo Series",Short Clip · Episode 2
+https://www.w3schools.com/html/movie.mp4
+
+#EXTINF:-1 tvg-id="demo.series3" tvg-name="Flower Story" group-title="Demo Series",Flower Story · Episode 3
+https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4
+
+#EXTINF:-1 tvg-id="demo.series4" tvg-name="Five Seconds" group-title="Demo Series",Five Seconds · Episode 4
+https://download.samplelib.com/mp4/sample-5s.mp4
+
+#EXTINF:-1 tvg-id="aje" tvg-name="Al Jazeera English" tvg-logo="https://commons.wikimedia.org/wiki/Special:FilePath/Aljazeera%20eng.svg?width=240" group-title="Demo Live",Al Jazeera English
+https://live-hls-web-aje.getaj.net/AJE/index.m3u8
+
+#EXTINF:-1 tvg-id="aja" tvg-name="Al Jazeera Arabic" group-title="Demo Live",Al Jazeera Arabic
+https://live-hls-web-aja.getaj.net/AJA/index.m3u8
+
+#EXTINF:-1 tvg-id="dw.en" tvg-name="DW English" tvg-logo="https://commons.wikimedia.org/wiki/Special:FilePath/Deutsche_Welle_symbol_2012.svg?width=240" group-title="Demo Live",DW English
+https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8
+
+#EXTINF:-1 tvg-id="nasa" tvg-name="NASA TV" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/240px-NASA_logo.svg.png" group-title="Demo Live",NASA TV
+https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8
+
+#EXTINF:-1 tvg-id="demo.pts" tvg-name="Mux Live Test" group-title="Demo Live",Mux Live Test
+https://test-streams.mux.dev/pts_shift/master.m3u8

@@ -1,0 +1,14 @@
+{
+  "comment": "Shared parity fixtures. 'expected' = JS classifier; 'kotlinExpected' = Kotlin classifier when deliberately different. Kotlin forces LIVE for .m3u8 (IPTV 24/7 channels), JS is conservative. Documented divergence, not a regression.",
+  "cases": [
+    { "name": "m3u8-alone-unknown", "input": { "url": "http://x/y/stream.m3u8", "name": "stream" }, "expected": "unknown", "kotlinExpected": "live", "note": "Kotlin HLS→LIVE rule (intentional)" },
+    { "name": "ts-alone-unknown", "input": { "url": "http://x/y/stream.ts", "name": "stream" }, "expected": "unknown" },
+    { "name": "live-channel-explicit", "input": { "url": "http://x/live/ch.ts", "name": "CNN", "kind": "live" }, "expected": "live" },
+    { "name": "vod-file-mp4", "input": { "url": "http://x/movie.mp4", "name": "Movie 2024" }, "expected": "movie" },
+    { "name": "vod-file-mkv", "input": { "url": "http://x/series/S01E01.mkv", "name": "S01E01" }, "expected": "series" },
+    { "name": "hls-playlist-with-live-name", "input": { "url": "http://x/live.m3u8", "name": "BBC News Live" }, "expected": "live" },
+    { "name": "xtream-live-param", "input": { "type": "live", "url": "http://x/xtream", "name": "Ch" }, "expected": "live" },
+    { "name": "xtream-vod-param", "input": { "type": "vod", "url": "http://x/xtream", "name": "Film" }, "expected": "movie" },
+    { "name": "empty-unknown", "input": {}, "expected": "unknown" }
+  ]
+}

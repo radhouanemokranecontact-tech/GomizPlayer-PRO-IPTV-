@@ -1,0 +1,110 @@
+{
+  "name": "gomizplayer-pro-iptv",
+  "version": "2.0.2",
+  "description": "GomizPlayer PRO IPTV — IPTV/VOD player with channel health scan, auto-failover, catch-up, scheduled recording and parental controls (Electron).",
+  "main": "src/main/main.js",
+  "author": "GomizPlayer",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "postinstall": "node scripts/copy-vendor.js",
+    "test:ssrf": "node tools/test-ssrf.js",
+    "test:classification": "node tools/test-classification.js",
+    "test:secrets": "node node_modules/electron/cli.js tools/test-secrets.js",
+    "test:secrets:audit": "node tools/test-secrets-audit.js",
+    "test:backup": "node tools/test-backup.js",
+    "test:update-guard": "node tools/test-update-guard.js",
+    "test:manifest-signature": "node tools/test-manifest-signature.js",
+    "verify:release-manifest": "node tools/verify-release-manifest.js",
+    "test:epg-stream": "node tools/test-epg-stream.js",
+    "test:classification-parity": "node tools/test-classification-parity.js",
+    "sign:manifest": "node scripts/sign-update-manifest.js dist/latest.yml",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win",
+    "postdist": "node scripts/organize-dist.js",
+    "test:net-guard": "node tools/test-net-guard.js",
+    "test:hardening": "node tools/test-hardening.js",
+    "test:pro": "node tools/test-pro.js",
+    "test:pro-ipc": "node tools/test-pro-ipc.js",
+    "test:media": "node tools/test-media-integration.js",
+    "smoke": "electron . --smoke-test",
+    "test:ui": "node tools/ui-smoke.js . && node tools/ui-multiview.js .",
+    "test:player-engine": "node tools/test-player-engine-contract.js",
+    "test:multiview-overlay": "node tools/test-multiview-failed-overlay.js"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.11",
+    "ffmpeg-static": "^5.3.0",
+    "hls.js": "^1.5.20",
+    "js-yaml": "^4.1.0",
+    "mpegts.js": "^1.7.3"
+  },
+  "devDependencies": {
+    "dashjs": "5.3.0",
+    "electron": "45.3.2",
+    "electron-builder": "^26.18.0",
+    "playwright": "^1.65.1"
+  },
+  "build": {
+    "appId": "com.gomizplayer.iptv",
+    "productName": "GomizPlayer PRO IPTV",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "scripts/**/*",
+      "sample/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "radhouanemokranecontact-tech",
+        "repo": "GomizPlayer-PRO-IPTV-"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "verifyUpdateCodeSignature": false,
+      "forceCodeSigning": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "GomizPlayer PRO IPTV",
+      "differentialPackage": true,
+      "artifactName": "GomizPlayer-PRO-IPTV-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "GomizPlayer-PRO-IPTV-Portable-${version}.${ext}"
+    }
+  },
+  "allowScripts": {
+    "ffmpeg-static@5.3.0": true,
+    "electron@45.3.2": true
+  },
+  "overrides": {
+    "minimatch@^10.2.5": "^11.0.1",
+    "@electron/asar": "^4.3.2",
+    "@electron/universal": "^3.0.6",
+    "ejs@^3.1.8": "^7.0.2"
+  }
+}
