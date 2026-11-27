@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data: blob: http: https:; media-src 'self' file: blob: data: http: https:; connect-src 'self' blob: data: http: https: ws: wss:; style-src 'self' 'unsafe-inline'; script-src 'self'; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GomizPlayer PRO IPTV</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M4 5.5h16a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5H4A1.5 1.5 0 0 1 2.5 17V7A1.5 1.5 0 0 1 4 5.5Z" fill="none" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M10 9.2v5.6l4.6-2.8L10 9.2Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">GomizPlayer <b style="color:var(--accent)">PRO</b></span>
+          <span class="brand-sub" data-i18n="tagline">Your own player. Your own sources.</span>
+        </div>
+      </div>
+
+      <nav class="nav" id="nav">
+        <button class="nav-item" data-route="home"><span class="nav-ico" data-icon="home"></span><span data-i18n="nav_home">Home</span></button>
+        <button class="nav-item" data-route="live"><span class="nav-ico" data-icon="live"></span><span data-i18n="nav_live">Live TV</span></button>
+        <button class="nav-item" data-route="guide"><span class="nav-ico" data-icon="guide"></span><span data-i18n="guide">TV Guide</span></button>
+        <button class="nav-item" data-route="movies"><span class="nav-ico" data-icon="film"></span><span data-i18n="nav_movies">Movies</span></button>
+        <button class="nav-item" data-route="series"><span class="nav-ico" data-icon="series"></span><span data-i18n="nav_series">Series</span></button>
+        <button class="nav-item" data-route="favorites"><span class="nav-ico" data-icon="heart"></span><span data-i18n="nav_favorites">My List TV</span></button>
+        <button class="nav-item" data-route="myvod"><span class="nav-ico" data-icon="film"></span><span data-i18n="nav_my_vod">My Movies & Series</span></button>
+        <button class="nav-item" data-route="downloads"><span class="nav-ico" data-icon="download"></span><span data-i18n="nav_downloads">Downloads</span></button>
+<button class="nav-item" data-route="recordings"><span class="nav-ico" data-icon="record"></span><span data-i18n="nav_recordings">Recordings</span></button>
+      </nav>
+
+      <div class="nav-sep"></div>
+
+      <nav class="nav">
+        <button class="nav-item" data-route="multiview" id="navMultiview"><span class="nav-ico" data-icon="grid"></span><span id="navMvLabel">Multiview</span></button>
+        <button class="nav-item" data-route="pro"><span class="nav-ico" data-icon="pro"></span><span id="navProLabel">PRO Tools</span></button>
+        <button class="nav-item" data-route="sources"><span class="nav-ico" data-icon="source"></span><span data-i18n="nav_sources">Sources</span></button>
+        <button class="nav-item" data-route="settings"><span class="nav-ico" data-icon="settings"></span><span data-i18n="nav_settings">Settings</span></button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="chip" id="langBtn">EN</button>
+        <div class="sidebar-social" id="sidebarSocial" aria-label="Social links">
+          <button class="social-btn" data-social="facebook" title="Facebook"><span data-icon="facebook"></span></button>
+          <button class="social-btn" data-social="mail" title="Email"><span data-icon="mail"></span></button>
+          <button class="social-btn" data-social="github" title="GitHub"><span data-icon="github"></span></button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn" id="backBtn" title="Back" hidden>
+          <span data-icon="back"></span>
+        </button>
+        <div class="searchbox">
+          <span class="search-ico" data-icon="search"></span>
+          <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search…">
+          <kbd>/</kbd>
+        </div>
+        <div class="topbar-actions"></div>
+      </header>
+
+      <section class="view" id="view"></section>
+    </main>
+  </div>
+
+  <!-- ===================== Overlays ===================== -->
+  <div class="modal-root" id="modalRoot" hidden>
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="icon-btn modal-close" data-close="1"><span data-icon="close"></span></button>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="player-root" id="playerRoot" hidden>
+    <video id="video" playsinline></video>
+    <div class="subtitle-layer" id="subtitleLayer"></div>
+
+    <div class="player-loading" id="playerLoading" hidden>
+      <span class="spinner"></span>
+      <span class="loading-label" id="playerLoadingLabel" data-i18n="loading_stream">Loading stream…</span>
+    </div>
+
+    <button class="player-center" id="playerCenter" type="button" aria-label="Play / Pause" hidden>
+      <span class="center-ico"></span>
+    </button>
+
+    <div class="player-error" id="playerError" hidden>
+      <div class="error-card">
+        <div class="error-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2 2.8 19.4h18.4L12 3.2Z"/><path d="M12 9v4.6M12 16.6h.01"/></svg>
+        </div>
+        <h3 data-i18n="stream_error">This stream could not be played</h3>
+        <p class="error-channel" id="errorChannel"></p>
+        <p data-i18n="stream_error_hint">The source may be offline, geo-blocked or using a codec this app cannot decode.</p>
+        <p class="error-detail" id="errorDetail" hidden></p>
+        <div class="error-actions">
+          <button class="btn btn-primary" id="retryBtn" data-i18n="retry">Retry</button>
+          <button class="btn btn-ghost" id="nextBtn2" data-i18n="try_next">Try next channel</button>
+          <button class="btn btn-ghost" id="closeErrBtn" data-i18n="close">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="record-timer" id="recordTimer" hidden>
+      <span class="record-timer-dot" aria-hidden="true"></span>
+      <span class="record-timer-label">REC</span>
+      <span class="record-timer-target" id="recordTimerTarget"></span>
+      <span class="record-timer-time" id="recordTimerTime">00:00:00</span>
+    </div>
+    <div class="player-top" id="playerTop">
+      <button class="icon-btn player-back" id="playerBack" title="Back"><span data-icon="back"></span></button>
+      <span class="live-pill player-top-live" id="playerTopLive" hidden><i></i><span data-i18n="live">LIVE</span></span>
+      <span class="player-top-latency" id="playerTopLatency"></span>
+      <div class="player-top-widget" id="playerTopWidget">
+        <button class="ptw-btn" id="ptwClock" type="button" title="Time"><span data-icon="clock"></span><span id="playerClock"></span></button>
+        <button class="ptw-btn" id="ptwWeather" type="button" title="Weather"><span data-icon="weather"></span><span id="playerWeather"></span></button>
+        <button class="ptw-btn" id="ptwPrayer" type="button" title="Prayer"><span data-icon="prayer"></span><span id="playerPrayer"></span></button>
+      </div>
+    </div>
+
+    <div class="stats-panel" id="statsPanel" hidden></div>
+
+    <aside class="channel-drawer" id="channelDrawer" hidden>
+      <div class="drawer-head">
+        <span class="drawer-title" data-i18n="all_channels">All channels</span>
+        <span class="drawer-count" id="drawerCount"></span>
+        <button class="icon-btn drawer-dedupe" id="drawerDedupe" type="button" title="Hide duplicates" aria-label="Hide duplicates">
+          <span data-icon="check"></span>
+        </button>
+        <button class="icon-btn" id="drawerClose"><span data-icon="close"></span></button>
+      </div>
+      <div class="drawer-search-wrap">
+        <span class="drawer-search-ico" data-icon="search"></span>
+        <input class="drawer-search" id="drawerSearch" type="search" placeholder="Search channels…">
+      </div>
+      <div class="drawer-body">
+        <div class="drawer-groups" id="drawerGroups" hidden>
+          <div class="drawer-groups-head" data-i18n="groups">Categories</div>
+          <div class="drawer-groups-list" id="drawerGroupsList"></div>
+        </div>
+        <div class="drawer-list" id="drawerList"></div>
+      </div>
+      <button class="drawer-more" id="drawerMore" hidden data-i18n="load_more">Load more channels</button>
+    </aside>
+
+    <div class="player-bottom" id="playerBottom">
+      <div class="player-dock">
+        <div class="player-identity">
+          <div class="player-identity-main">
+            <div class="player-avatar" id="playerAvatar"></div>
+            <div class="player-title">
+              <div class="player-name-row">
+                <span id="playerTitle">—</span>
+                <button class="quality-chip" id="playerQuality" type="button" title="Quality">—</button>
+              </div>
+              <span class="player-sub" id="playerSub"></span>
+            </div>
+          </div>
+        </div>
+        <div class="live-strip" id="liveStrip" hidden>
+          <div class="live-epg" id="liveEpg" hidden>
+            <div class="live-epg-row">
+              <span class="live-tag" id="liveNowTag" data-i18n="now">Now</span>
+              <span class="live-now" id="liveNow"></span>
+              <span class="live-left" id="liveRemaining"></span>
+              <button class="btn btn-ghost btn-xs" id="liveAddEpg" hidden data-i18n="add_epg">Add EPG</button>
+            </div>
+            <div class="live-bar" id="liveBar"><i id="liveBarFill"></i></div>
+            <div class="live-epg-row live-epg-next" id="liveNextRow">
+              <span class="live-tag" id="liveNextTag" data-i18n="next">Next</span>
+              <span class="live-next" id="liveNext"></span>
+              <span class="live-next-time" id="liveNextTime"></span>
+              <span class="live-latency" id="liveLatency"></span>
+            </div>
+          </div>
+        </div>
+        <div class="seek-row" id="seekRow">
+          <span class="time" id="timeNow">0:00</span>
+          <input class="seek" id="seekBar" type="range" min="0" max="1000" value="0" step="1">
+          <span class="time" id="timeTotal">0:00</span>
+        </div>
+        <div class="control-row">
+          <button class="channels-pill" id="drawerBtn" type="button" title="Channels">
+            <span data-icon="list"></span>
+            <span data-i18n="all_channels">All channels</span>
+          </button>
+          <div class="transport">
+            <button class="ctrl" id="back10Btn" title="Back 10s"><span data-icon="back10"></span></button>
+            <button class="ctrl" id="prevCh" title="Previous"><span data-icon="prev"></span></button>
+            <button class="ctrl ctrl-main" id="playBtn" title="Play"><span data-icon="play"></span></button>
+            <button class="ctrl" id="stopBtn" title="Stop"><span data-icon="stop"></span></button>
+            <button class="ctrl" id="nextCh" title="Next"><span data-icon="next"></span></button>
+            <button class="ctrl" id="forward10Btn" title="Forward 10s"><span data-icon="forward10"></span></button>
+            <button class="ctrl" id="goLiveBtn" title="Go to live" hidden><span data-icon="golive"></span></button>
+            <button class="ctrl" id="recordBtn" title="Record"><span data-icon="record"></span><span class="rec-badge" id="recordBadge" hidden>0</span></button>
+          </div>
+
+          <div class="tools">
+            <div class="ctrl-group">
+              <div class="volume-wrap">
+                <button class="ctrl" id="muteBtn" title="Mute"><span data-icon="volume"></span></button>
+                <input class="vol" id="volBar" type="range" min="0" max="100" value="100">
+              </div>
+              <button class="ctrl" id="reloadBtn" title="Reload"><span data-icon="reload"></span></button>
+              <button class="ctrl" id="lockBtn" title="Lock controls"><span data-icon="lock"></span></button>
+              <button class="ctrl" id="screenshotBtn" title="Screenshot"><span data-icon="screenshot"></span></button>
+              <button class="ctrl" id="sleepBtn" title="Sleep timer"><span data-icon="timer"></span></button>
+              <button class="ctrl" id="repeatBtn" title="Repeat"><span data-icon="repeat"></span></button>
+              <select class="mini-select" id="seekStepSel" title="Seek step">
+                <option value="5">5s</option>
+                <option value="10" selected>10s</option>
+                <option value="15">15s</option>
+                <option value="30">30s</option>
+                <option value="60">60s</option>
+              </select>
+              <button class="ctrl ctrl-text" id="audioBtn" hidden>Audio</button>
+              <button class="ctrl ctrl-text" id="aspectBtn" title="Aspect ratio">Fit</button>
+              <select class="mini-select" id="speedSel" title="Speed">
+                <option value="0.25">0.25×</option>
+                <option value="0.5">0.5×</option>
+                <option value="0.75">0.75×</option>
+                <option value="1" selected>1×</option>
+                <option value="1.25">1.25×</option>
+                <option value="1.5">1.5×</option>
+                <option value="2">2×</option>
+              </select>
+              <button class="ctrl" id="favBtn" title="Favorite"><span data-icon="heart"></span></button>
+              <button class="ctrl" id="epgBtn" title="EPG"><span data-icon="guide"></span></button>
+              <button class="ctrl" id="tracksBtn" title="Audio / Subtitles"><span data-icon="headphones"></span></button>
+              <button class="ctrl" id="quickInfoBtn" title="Quick info"><span data-icon="info"></span></button>
+              <button class="ctrl" id="miniBtn" title="Mini player"><span data-icon="mini"></span></button>
+              <button class="ctrl tool-secondary" id="pipBtn" title="Picture in picture"><span data-icon="pip"></span></button>
+              <button class="ctrl tool-secondary" id="statsBtn" title="Stats"><span data-icon="stats"></span></button>
+              <button class="ctrl" id="fullBtn" title="Fullscreen"><span data-icon="full"></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="player-pop" id="playerPop" hidden></div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="vendor/hls.min.js"></script>
+  <script src="vendor/mpegts.min.js"></script>
+  <script src="vendor/dash.all.min.js"></script>
+  <script src="../shared/classification.js"></script>
+  <script src="widget-helpers.js"></script>
+  <script src="i18n.js"></script>
+  <script src="subtitles.js"></script>
+  <script src="pro.js"></script>
+  <script src="multiview.js"></script>
+  <script src="player.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
