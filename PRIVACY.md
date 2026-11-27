@@ -42,3 +42,49 @@
 
 ## 8) التحكم عن بُعد (LAN)
 - **غير متاح في هذا الإصدار.** لا يفتح التطبيق أي خادم محلي ولا يستمع على أي منفذ. (كانت نسخ سابقة من هذا المستند تذكر ميزة تحكم عن بُعد؛ لم تُنفَّذ في الكود وتمت إزالة الإشارة.)
+
+---
+
+# Privacy Policy — English
+
+**Last reviewed:** 2026-11-27
+
+This policy describes optional diagnostics/analytics and network requests in GomizPlayer PRO IPTV 2.0.2.
+
+## 1. Data that may be sent
+
+When enabled, usage analytics and/or crash reporting may send to the configured receiver:
+- Usage events, a random installation ID and session ID, app version, platform/OS, architecture, language, and time.
+- Error type, error message, and stack trace with version/platform/time details.
+
+## 2. Data not collected by these features
+
+The app's analytics/crash reports are not intended to send MAC addresses, passwords, account credentials, playlists, media files, profiles, or viewing content. The reports can include technical error details and stack traces, so review your receiver configuration and logs.
+
+## 3. Network and IP address
+
+The receiving server can technically see your IP address when the app connects. The server operator determines whether and how connection data is retained.
+
+## 4. User controls and local logs
+
+- Analytics and crash reporting can be enabled or disabled in **Settings → Privacy & Security**.
+- The telemetry service URL can be changed or telemetry can be disabled.
+- Local diagnostic logs are stored under the app's `userData/logs/app.log` directory.
+
+## 5. External services
+
+Weather, prayer times, location lookup, and app updates may contact external services. Their policies apply to requests they receive.
+
+When no city is configured, the app requests `https://ipwho.is/` to estimate a city/country from the IP address for weather and prayer-time widgets. The request necessarily exposes the IP to that service. To avoid the IP-based lookup, set a city manually in **Settings → General**. Weather data uses Open-Meteo; prayer-time data uses Aladhan. Their privacy policies apply to those requests.
+
+## 6. Retention and security
+
+Data sent to telemetry is handled according to the endpoint you configure or the distributor's receiver. Production endpoints should use HTTPS, authentication, restricted access, and limited retention. No network transfer can be guaranteed absolutely secure.
+
+## 7. Contact
+
+For privacy questions about a distribution, contact its maintainer through the repository or its support channel.
+
+## 8. LAN remote control
+
+LAN remote control is **not available** in this version. The app does not start a local control server or listen on a local port.

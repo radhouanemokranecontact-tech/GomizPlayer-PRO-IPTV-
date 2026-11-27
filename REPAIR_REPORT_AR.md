@@ -1,93 +1,49 @@
-# تقرير التدقيق والإصلاح — GomizPlayer PRO IPTV 2.0.0
+# تقرير الإصلاح والتحقق — GomizPlayer PRO IPTV 2.0.2
 
-## نطاق العمل
-- المصدر: أرشيف `GomizPlayer-PRO-IPTV-2.0.0 (3).zip` المرفق.
-- الإصلاحات في نسخة مستقلة؛ لم يتم تعديل الأرشيف الأصلي.
-- لا يتضمن هذا التقرير ادعاء بناء Windows Installer أو اختبار تشغيل على Windows.
+**الحالة:** هذا التقرير يخص الشيفرة الموجودة في `main` وإصدار الحزمة 2.0.2، وليس تقرير أرشيف 2.0.0 القديم. حُفظ التقرير السابق في `docs/archive/REPAIR_REPORT_AR-2.0.0.md`.
 
-## الإصلاح المنفذ
+## ما أُنجز في المتابعة الحالية
 
-### M3U parser / classification performance
-**المشكلة:** اختبار `tools/test-hardening.js` الخاص بتحليل 50,000 عنصر كان يتجاوز حد 3 ثوانٍ في أول تشغيل ضمن بيئة الفحص.
+- إصلاح اكتشاف FFmpeg في اختبار Multiview على Windows باستخدام `ffmpeg-static` أو FFmpeg الموجود في PATH.
+- دعم تشغيل اختبار Playwright بمتصفح Chrome المثبت عبر `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`، مع إبقاء Chromium المُدار من Playwright هو الافتراضي.
+- إصلاح عينة HLS في الاختبار: إنشاء ملف التهيئة في مجلد البث واستخدام H.264/AVC بدلاً من عينة VP9 غير المتوافقة مع إعداد fMP4 المستخدم.
+- توحيد ملفات الإعداد والتقارير المنشورة لتصف الإصدار 2.0.2 ونتائج الاختبار والبناء الحالية.
 
-**السببان اللذان عولجا:**
-1. `parseAttributes()` كان ينشئ تعبيراً نمطياً جديداً لكل سطر `#EXTINF`.
-2. `hasToken()` في `src/shared/classification.js` كان ينشئ Regex متكرراً لكل رمز ولكل عنصر أثناء التصنيف.
+هذه إصلاحات لأداة اختبار Multiview وتوثيق المشروع؛ لم يتطلب تشخيص هذه المشكلة تغيير مشغّل التطبيق.
 
-**التغيير:**
-- إعادة استخدام Regex مُسبق الإنشاء لسمات M3U مع تصفير `lastIndex` قبل كل تحليل.
-- إضافة ذاكرة مؤقتة محدودة (256 مدخلاً) لتعبيرات تصنيف الرموز، مع الحفاظ على قواعد الحدود النصية الحالية.
-- لم تتغير بنية عناصر M3U ولا أسماء الحقول ولا أولوية التصنيف.
+## نتائج التحقق الحالية
 
-**القياس المحلي بعد الإصلاح:**
-- 50,000 عنصر: 624.5ms، 560.4ms، 552.2ms، 591.7ms في أربع جولات متتالية.
-- اختبار حد 3 ثوانٍ أصبح ناجحاً. القياس خاص ببيئة الفحص وليس ضماناً لكل جهاز.
+- `npm run test:ui`: نجح UI Smoke واختبار Multiview كاملاً، بما في ذلك HLS، التحويل إلى مصدر بديل، تبديل الصوت والتخطيطات، RTL، وتنظيف عناصر الفيديو.
+- `npm audit`: صفر ثغرات معلنة ضمن 309 تبعيات.
+- GitHub Actions: نجحت اختبارات الانحدار الخمسة عشر وبناء نسختي Windows والتحقق من وجودهما.
+- اكتمل البناء المحلي: Setup ‏151,060,265 بايت، Portable ‏134,938,997 بايت، وblockmap ‏158,245 بايت.
+- طابق `dist/latest.yml` إصدار 2.0.2 وحجم وبصمة SHA-512 لملف Setup عند فحصه محلياً.
 
-### Multiview — تمرير رؤوس HTTP
-**المشكلة:** المشغّل الرئيسي يمرر رؤوس M3U مثل User-Agent وReferer وOrigin إلى محرك التشغيل، لكن مسار Multiview لم يكن يمرر `item.headers` إلى hls.js أو mpegts.js. لذلك قد تعمل القناة في المشغّل الرئيسي وتفشل في Multiview عندما يشترط الخادم هذه الرؤوس.
+## ما لم يكتمل
 
-**الإصلاح:** تمرير الرؤوس المسموح بها إلى `xhrSetup` في hls.js وإلى إعداد `headers` في mpegts.js. أضيفت قائمة سماح للأسماء وحد أقصى للقيمة ورفض CR/LF/NUL. هذا لا يتجاوز قيود المتصفح على الرؤوس المحجوزة مثل User-Agent/Referer/Origin؛ نجاحها يظل تابعاً لمحرك المتصفح وطريقة الخادم.
+- لم يُنشأ إصدار GitHub: توقف مسار الإصدار عند توقيع البيان لأن سر Actions `UPDATE_SIGNING_PRIVATE_KEY` غير مضبوط في المستودع الجديد. لذلك لم تُرفع الملفات التنفيذية ولم يُنشر بيان تحديث غير موقّع. [تشغيل GitHub Actions](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/45957420807).
+- بيان `dist/latest.yml` المحلي غير موقّع. بعد إضافة السر المطابق للمفتاح العام المضمّن، أعد تشغيل **Build PC release draft** على `main` بالوسم `v2.0.2`.
+- لا يدّعي هذا التحقق تشغيل بث IPTV من مزوّد فعلي أو دعم DRM في MPEG-DASH. ملفات Windows غير موقعة Authenticode.
 
-## توثيق الإصدار
-- `TECHNICAL_GUIDE.md` كان يعرض 1.0.35 و1.0.14 رغم أن `package.json` و`package-lock.json` يحددان 2.0.0؛ تم تحديث بيانات الإصدار الظاهرة في مقدمة الدليل وجدول الإصدار والفقرة الإنجليزية.
-- بيان 1.0.33 التاريخي محفوظ دون تغيير في `docs/archive/RELEASE_MANIFEST-1.0.33.yml` لأن تعديل حقوله يُبطل توقيعه. لا يُستخدم كبيان إصدار حالي؛ تُوقّع `dist/latest.yml` الناتجة عن ملفات الإصدار الفعلية بمفتاح الإصدار الخاص.
+## English
 
-## نتائج الاختبارات بعد الإصلاح
-| الاختبار | النتيجة |
-|---|---|
-| `test-hardening.js` | PASS — جميع الحالات، بما فيها 50K M3U |
-| `test-classification.js` | PASS |
-| `test-classification-parity.js` | PASS — 9/9 |
-| `test-epg-stream.js` | PASS |
-| `test-manifest-signature.js` | PASS |
-| `test-net-guard.js` | PASS |
-| `test-pro.js` | PASS |
-| `test-pro-ipc.js` | PASS |
-| `test-backup.js` | PASS |
-| `test-update-guard.js` | PASS |
-| `test-secrets-audit.js` | PASS |
-| `test-media-integration.js` | PASS |
+**Scope:** The current 2.0.2 source and tests, not the old 2.0.0 ZIP audit. The prior report is preserved at `docs/archive/REPAIR_REPORT_AR-2.0.0.md`.
 
-## اختبارات لم تكتمل / قيود البيئة
-- `test-ssrf.js`: فشل في السماح بـ `example.com` بسبب `EAI_AGAIN` (DNS مؤقت في بيئة الاختبار). الحالات التي يجب حظرها أظهرت BLOCKED كما هو متوقع؛ يلزم إعادة الاختبار على شبكة DNS مستقرة.
-- `test-secrets.js`: لم يعمل لأن Electron binary لم يكن مثبتاً/قابلاً للتنزيل في البيئة؛ يتطلب تشغيله على جهاز يحوي Electron runtime الصحيح.
-- لم يتم بناء NSIS/Portable، ولم يتم اختبار التشغيل الفعلي على Windows 11.
+### Work completed in this follow-up
+- Fixed Windows FFmpeg discovery in the Multiview test by preferring `ffmpeg-static` and supporting FFmpeg on PATH.
+- Added `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` so Playwright can use installed Chrome when its managed Chromium is unavailable.
+- Fixed the HLS test fixture: FFmpeg now runs in the HLS output folder so `init.mp4` is served from the expected path; the sample uses H.264/AVC instead of unsuitable VP9/fMP4.
+- Updated the release documentation to describe version 2.0.2 and the actual verification/build state.
 
-## حالة الإصلاح
-هذا إصدار مصدر مُصلح أولياً وليس Release نهائياً. الخطوة التالية هي تدقيق مسارات Player/Multiview وإجراء اختبار GUI وذاكرة طويل المدة على Windows، ثم بناء وتوقيع حزمة الإصدار.
+These are Multiview test-harness and documentation fixes. The diagnosis did not require changing the app's playback implementation.
 
-## المرحلة الثانية — Player & Multiview (2026-11-27)
+### Verification
+- Local `npm run test:ui`: UI Smoke and all Multiview checks passed.
+- `npm audit`: 0 known vulnerabilities across 309 dependencies.
+- GitHub Actions: all 15 release regression groups, the Windows build, and artifact-presence checks passed.
+- Local NSIS and portable builds completed; `dist/latest.yml` matched the Setup version, size, and SHA-512.
 
-### متابعة الإصدار 2.0.1 (2026-11-27)
-تم دمج dash.js 5.3.0 كتَبعية تطوير ينسخها `scripts/copy-vendor.js` إلى الواجهة أثناء التثبيت. نجح بناء NSIS وPortable والتحقق من وجود المكتبة وترخيصها داخل `app.asar`. نجحت اختبارات التوقيع وحارس التحديث والشبكة والتحصين والأسرار وPRO وعقد Player/Multiview. اختبار Electron لـ safeStorage نجح عند تشغيله خارج العزل. بيان `latest.yml` المحلي غير موقّع ويحتاج توقيع CI قبل النشر؛ ولم يُختبر بث MPD/M4S فعلي.
+### Remaining release blocker
+GitHub Actions stopped at manifest signing because the new repository does not have the `UPDATE_SIGNING_PRIVATE_KEY` secret. No executable files or unsigned update manifest were published. Local artifacts remain under `dist/v2.0.2/`. After configuring the matching secret, run **Build PC release draft** on `main` with tag `v2.0.2`.
 
-### تصحيح سلامة ملف المشغّل
-أثناء تدقيق نسخة الإصلاح السابقة تبيّن أن `src/renderer/player.js` في تلك الحزمة كان نسخة مكررة من `multiview.js` (236 سطراً تقريباً) وليس المشغّل الأصلي. تم استرجاع `player.js` كاملاً من الأرشيف المصدر المرفق (2525 سطراً قبل التعديل)، ثم تطبيق إصلاحات المرحلة الثانية عليه. الأرشيف الأصلي لم يتغير.
-
-### إصلاحات محرك التشغيل
-1. توحيد وتنقية رؤوس HTTP المسموح بها في المشغّل الرئيسي: `User-Agent`, `Referer`/`Referrer`, `Origin` فقط، مع رفض القيم الفارغة أو الأطول من 2048 حرفاً أو المحتوية على CR/LF/NUL.
-2. تمرير الرؤوس المنقاة إلى إعداد `headers` الخاص بـ mpegts.js؛ كان المسار السابق يستدعي `startMpegts(url, token)` ولا يمرر الرؤوس إطلاقاً.
-3. دعم امتداد `.m2ts` في تحديد محرك التشغيل، مع اختيار النوع `m2ts` بدلاً من إجباره على `mpegts`.
-4. تسجيل مستمع خطأ MPEG-TS قبل `attachMediaElement()` و`load()` لتجنب فقدان خطأ مبكر.
-5. تصحيح `RequestModifier` في مسار dash.js ليضع الرؤوس عبر `XMLHttpRequest.setRequestHeader()` قبل `initialize()` بدلاً من دالة `modifyRequest` غير المناسبة لهذا الامتداد.
-6. توحيد شرط دعم البث الحي في Multiview مع `getFeatureList().mseLivePlayback` وإضافة دعم `.m2ts`.
-7. إضافة `tools/test-player-engine-contract.js` واختبار مستقل لإعداد المحركات وتنقية الرؤوس.
-8. تصحيح معلومات التشخيص السريع والإحصائيات كي تعرض `MPEG-DASH` عند استخدام كائن dash.js بدلاً من عرضه خطأً كـ Native.
-9. جعل فحص إمكانات mpegts.js في Multiview آمناً عند الاستثناء، وتسجيل مستمع خطأ TS قبل ربط عنصر الفيديو.
-
-### حالة DASH وقت إعداد هذا التقرير
-عند إعداد التقرير لم تكن مكتبة dash.js مضمّنة، لذلك لم يُعتبر تشغيل MPEG-DASH مدعوماً. في تحديث المصدر بتاريخ 2026-11-27 أضيفت dash.js 5.3.0 كتَبعية محلية وربطها المشغّل. ما زال يلزم اختبار MPD/M4S فعلي للتحقق من التوافق مع الترميزات والخوادم وCORS؛ ولا يُدّعى دعم DRM.
-
-### نتائج التحقق للمرحلة الثانية
-- 11 مجموعة اختبارات: 236 حالة PASS بعد إضافة أربع حالات عقد جديدة للمرحلة الثانية؛ اختبار عقد Player/Multiview أصبح 15/15.
-- `test-media-integration.js`: 12/12 PASS بعد إصلاح أداة الاختبار نفسها؛ كانت الأداة تحاول تعديل `require.cache` لمكتبة `ffmpeg-static` غير المثبتة، فلم يصل مسار FFmpeg النظامي إلى `Downloads`. تم جعل الاختبار يحقن مسار FFmpeg المعتمد عبر `Module._load` قبل تحميل الوحدة.
-- فحص Syntax: 47 ملف JavaScript غير مصغّر ضمن src/tools/scripts، جميعها PASS.
-- تم اختبار تنزيل HLS والتحويل إلى MP4، تمرير رؤوس HTTP، رفض CRLF injection، منع قراءة الملفات المحلية من playlist خبيثة، وتسجيل TS عبر FFmpeg.
-
-### ما لم يتم إثباته
-- تعذر تشغيل اختبار توقيع Manifest واختبار Electron الإضافي في هذه الجولة لعدم وجود node_modules في بيئة العمل (فشل تحميل js-yaml)؛ لا يعني ذلك فشل منطق الاختبار نفسه.
-- لم يتم تشغيل GUI/Electron على Windows في هذه البيئة.
-- لا يوجد اختبار بث حي حقيقي من مزود IPTV.
-- لم يتضمن هذا التقرير اختبار DASH فعلياً؛ دمج dash.js اللاحق لم يُختبر مع بث MPD حقيقي.
-- لا يوجد اختبار استقرار Multiview طويل الأمد أو قياس RAM/GPU على Windows.
-- لم يتم بناء NSIS أو Portable.
+MPEG-DASH was not tested against a real provider, DRM is not claimed, and the Windows files do not have Authenticode signatures.

@@ -1,4 +1,4 @@
-# GomizPlayer IPTV — Code Audit & Cleanup Report (Pre-Implementation)
+# [Historical] GomizPlayer IPTV — Code Audit & Cleanup Report (Pre-Implementation)
 
 Date: 2026-11-17
 Branch: `fix/classification-security-performance`
@@ -6,6 +6,8 @@ Scope: `src/main`, `src/renderer`, `src/shared` (vendor excluded)
 
 > **Status: Report only. No code changes have been applied.**  
 > Any implementation should be approved first (see "Implementation Prompt" at the end).
+>
+> Historical snapshot from 2026-11-17. It does not describe the current 2.0.2 source; re-check every finding before acting on it.
 
 ---
 
