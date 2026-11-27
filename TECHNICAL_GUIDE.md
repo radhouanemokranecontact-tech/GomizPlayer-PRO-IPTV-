@@ -22,8 +22,8 @@
 ### التحديثات والبناء
 - التحديثات تعتمد `electron-updater` وبيان `latest.yml` موقعاً بـ Ed25519؛ يتحقق التطبيق من البيان والملف قبل التنزيل. التراجع الآمن مرتبط بحارس الإصدار.
 - `npm run dist` يبني NSIS وPortable x64 ويضع النتائج تحت `dist/v<version>/`.
-- إصدار 2.0.2 بُني محلياً وبُني أيضاً على GitHub Actions. لم يُنشر Release: سر `UPDATE_SIGNING_PRIVATE_KEY` غير مضبوط في المستودع الجديد، لذلك لم يوقّع CI البيان ولم ينشئ مسودة الإصدار.
-- ملفات exe المحلية وبيان `dist/latest.yml` غير الموقّع ليست أصول إصدار منشورة. ملفات Windows لا تحمل توقيع Authenticode.
+- إصدار 2.0.2 بُني محلياً وعلى GitHub Actions. أُنشئت مسودة إصدار موقّعة بأصول Setup وPortable وblockmap و`latest.yml`؛ لم تُنشر المسودة للعامة بعد.
+- `dist/latest.yml` المحلي غير موقّع، بينما بيان CI المرفق بالمسودة موقّع ومتحقق منه. ملفات Windows لا تحمل توقيع Authenticode.
 
 ### الفحوص المنفذة والحدود
 - `npm run test:ui` نجح محلياً: UI Smoke وMultiview، بما فيها عينة HLS H.264. يمكن اختيار Chrome المثبت عبر `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` عند الحاجة.
@@ -54,8 +54,8 @@ A Windows desktop IPTV/VOD player built with Electron and JavaScript. It manages
 ### Updates and builds
 - Updates use `electron-updater` and an Ed25519-signed `latest.yml`; the app validates the manifest and artifact before download. Safe rollback is handled by the update guard.
 - `npm run dist` builds the NSIS installer and x64 portable executable under `dist/v<version>/`.
-- Version 2.0.2 was built locally and by GitHub Actions. No GitHub Release was published: the new repository lacks `UPDATE_SIGNING_PRIVATE_KEY`, so CI did not sign the manifest or create a draft release.
-- Local executables and the unsigned `dist/latest.yml` are not published release assets. Windows executables do not have Authenticode signatures.
+- Version 2.0.2 was built locally and by GitHub Actions. A signed draft release with Setup, Portable, blockmap, and `latest.yml` was created; it has not been made public yet.
+- Local `dist/latest.yml` is unsigned, while the CI manifest attached to the draft is signed and verified. Windows executables do not have Authenticode signatures.
 
 ### Verification and limits
 - Local `npm run test:ui` passed both UI Smoke and Multiview, including an H.264 HLS fixture. Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to use installed Chrome when needed.

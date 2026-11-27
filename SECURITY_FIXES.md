@@ -26,7 +26,7 @@
 
 ## حدود مهمة
 
-- مفتاح Ed25519 الخاص لا يُحفظ في المستودع. لم يكن سر `UPDATE_SIGNING_PRIVATE_KEY` مضبوطاً في المستودع الجديد عند محاولة الإصدار؛ لذلك توقفت خطوة التوقيع ولم تُنشر مسودة Release. يجب ضبط السر المطابق للمفتاح العام المضمّن قبل تشغيل مسار الإصدار.
+- مفتاح Ed25519 الخاص لا يُحفظ في المستودع. بعد ضبط سر `UPDATE_SIGNING_PRIVATE_KEY` المطابق للمفتاح العام، نجح CI في توقيع manifest 2.0.2 والتحقق منه ورفع أصول مسودة الإصدار. المسودة لم تُنشر للعامة بعد.
 - ملف `dist/latest.yml` المحلي غير موقّع ولا ينبغي نشره كتحديث.
 - ملفات Windows غير موقعة Authenticode، وقد يظهر تحذير ناشر غير معروف.
 - لم يُختبر بث MPEG-DASH/DRM حقيقي، ولا تعني الاختبارات المحلية ضماناً ضد مخاطر كل مزوّد أو شبكة.
@@ -58,7 +58,7 @@ Parental controls are a local UI filter, not a security barrier against someone 
 - See [`REPORT_TEST_RESULTS_AR.md`](REPORT_TEST_RESULTS_AR.md) for the full current results.
 
 ### Important limits
-- The private Ed25519 key is not stored in the repository. The new repository lacked the `UPDATE_SIGNING_PRIVATE_KEY` secret during the release attempt; signing stopped and no draft was published. Configure the secret matching the public key embedded in the app before running the release workflow.
+- The private Ed25519 key is not stored in the repository. After configuring `UPDATE_SIGNING_PRIVATE_KEY` to match the app's embedded public key, CI signed and verified the 2.0.2 manifest and uploaded all draft assets. The draft has not been publicly published yet.
 - Local `dist/latest.yml` is unsigned and must not be published as an update feed.
 - Windows binaries are not Authenticode-signed; Windows may show an unknown-publisher warning.
 - Real-provider MPEG-DASH/DRM playback was not tested. Local test success does not guarantee safety against every provider or network.

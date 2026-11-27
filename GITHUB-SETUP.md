@@ -29,11 +29,11 @@ npm run dist
 
 1. حدّث رقم الإصدار في `package.json` و`package-lock.json`، ثم شغّل الاختبارات والبناء.
 2. اضبط سر المستودع `UPDATE_SIGNING_PRIVATE_KEY` بمفتاح Ed25519 المطابق للمفتاح العام المضمّن في التطبيق. لا تحفظ المفتاح الخاص في ملفات المشروع أو Git.
-3. افتح GitHub Actions واختر **Build PC release draft** ثم **Run workflow** على `main`، وأدخل وسم الإصدار المطابق، مثل `v2.0.2`.
+3. افتح GitHub Actions واختر **Build PC release draft** ثم **Run workflow** على `main`، وأدخل وسم الإصدار المطابق لرقم الحزمة.
 4. يتحقق المسار من الاختبارات ورقم الإصدار، يبني NSIS وPortable، يوقّع `latest.yml`، ويتحقق من التوقيع ثم ينشئ إصداراً مسودة يتضمن المثبّت والنسخة المحمولة وملف blockmap والبيان الموقّع.
 5. راجع المسودة وأصولها قبل نشرها. ملفات Windows لا تحمل توقيع Authenticode حالياً؛ قد يعرض Windows تحذير ناشر غير معروف.
 
-إذا لم يكن السر مضبوطاً، يفشل مسار الإصدار عمداً ولا ينشر بيان تحديث غير موقّع.
+إذا لم يكن السر مضبوطاً، يفشل مسار الإصدار عمداً ولا ينشر بيان تحديث غير موقّع. مسودة `v2.0.2` الحالية موقّعة وبأصولها الأربعة، وهي بانتظار المراجعة والنشر.
 
 ## English
 
@@ -64,8 +64,8 @@ npm run dist
 
 1. Update both `package.json` and `package-lock.json`, then run the tests and build.
 2. Configure the repository Actions secret `UPDATE_SIGNING_PRIVATE_KEY` with the Ed25519 private key matching the public key embedded in the app. Never put the private key in the repository or chat.
-3. In GitHub Actions, run **Build PC release draft** on `main`, entering a tag that matches the package version, for example `v2.0.2`.
+3. In GitHub Actions, run **Build PC release draft** on `main`, entering a tag that matches the package version.
 4. The workflow runs regression tests, builds Windows packages, signs and verifies `latest.yml`, and creates a draft release containing Setup, Portable, blockmap, and the signed manifest.
 5. Review the draft and its assets before publishing. Windows executables currently have no Authenticode signature, so Windows may show an unknown-publisher warning.
 
-The current 2.0.2 source and packages are verified, but the new repository's signing secret is not configured yet. Until it is added, the workflow intentionally stops before creating a release.
+If the secret is missing, the workflow intentionally stops rather than publishing an unsigned update manifest. The current signed `v2.0.2` draft has all four assets uploaded and awaits review/publication.

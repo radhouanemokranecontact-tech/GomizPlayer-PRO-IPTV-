@@ -26,7 +26,7 @@ npm.cmd start
 ```
 
 ### Release status
-The 2.0.2 NSIS and portable x64 builds were created locally and in GitHub Actions. The GitHub Release has **not** been created: the new repository needs the `UPDATE_SIGNING_PRIVATE_KEY` Actions secret to sign `latest.yml`. The current local manifest is unsigned and is not a publishable update feed. Windows executables are not Authenticode-signed.
+The 2.0.2 NSIS and portable x64 builds were created locally and in GitHub Actions. A [signed GitHub draft release](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/untagged-e909017985d54179241f) with Setup, Portable, blockmap, and `latest.yml` has been created and verified. It is not publicly available until the draft is published. The local `dist/latest.yml` is unsigned; the draft contains the signed CI manifest. Windows executables are not Authenticode-signed.
 
 ## العربية
 
@@ -44,7 +44,7 @@ npm.cmd start
 ```
 
 ### حالة الإصدار
-بُنيت حزم 2.0.2 بصيغتي NSIS وPortable x64 محلياً وفي GitHub Actions. لم يُنشأ إصدار GitHub بعد؛ يحتاج المستودع الجديد إلى سر Actions باسم `UPDATE_SIGNING_PRIVATE_KEY` لتوقيع `latest.yml`. البيان المحلي غير موقّع ولا يصلح للنشر كتغذية تحديث. ملفات Windows غير موقعة Authenticode.
+بُنيت حزم 2.0.2 بصيغتي NSIS وPortable x64 محلياً وفي GitHub Actions. أُنشئت [مسودة إصدار موقّعة](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/untagged-e909017985d54179241f) على GitHub وتضم Setup وPortable وblockmap و`latest.yml`، ونجح التحقق من التوقيع. المسودة ليست متاحة للعامة حتى نشرها. ملف `dist/latest.yml` المحلي غير موقّع؛ البيان الموقّع موجود ضمن المسودة. ملفات Windows غير موقعة Authenticode.
 
 ## Privacy and security | الخصوصية والأمان
 

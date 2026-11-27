@@ -19,10 +19,11 @@
 - اكتمل البناء المحلي: Setup ‏151,060,265 بايت، Portable ‏134,938,997 بايت، وblockmap ‏158,245 بايت.
 - طابق `dist/latest.yml` إصدار 2.0.2 وحجم وبصمة SHA-512 لملف Setup عند فحصه محلياً.
 
-## ما لم يكتمل
+## حالة النشر الحالية
 
-- لم يُنشأ إصدار GitHub: توقف مسار الإصدار عند توقيع البيان لأن سر Actions `UPDATE_SIGNING_PRIVATE_KEY` غير مضبوط في المستودع الجديد. لذلك لم تُرفع الملفات التنفيذية ولم يُنشر بيان تحديث غير موقّع. [تشغيل GitHub Actions](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/45957420807).
-- بيان `dist/latest.yml` المحلي غير موقّع. بعد إضافة السر المطابق للمفتاح العام المضمّن، أعد تشغيل **Build PC release draft** على `main` بالوسم `v2.0.2`.
+- بعد إضافة سر `UPDATE_SIGNING_PRIVATE_KEY`، نجح [تشغيل GitHub Actions](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/45960310720) في الاختبارات والبناء وتوقيع manifest والتحقق منه.
+- أُنشئت [مسودة v2.0.2](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/untagged-e909017985d54179241f) ورُفعت إليها أصول Setup وPortable وblockmap و`latest.yml` الموقّع. المسودة لم تُنشر للعامة بعد.
+- بيان `dist/latest.yml` المحلي غير موقّع، ويختلف عن manifest الموقّع المرفق بالمسودة.
 - لا يدّعي هذا التحقق تشغيل بث IPTV من مزوّد فعلي أو دعم DRM في MPEG-DASH. ملفات Windows غير موقعة Authenticode.
 
 ## English
@@ -43,7 +44,9 @@ These are Multiview test-harness and documentation fixes. The diagnosis did not 
 - GitHub Actions: all 15 release regression groups, the Windows build, and artifact-presence checks passed.
 - Local NSIS and portable builds completed; `dist/latest.yml` matched the Setup version, size, and SHA-512.
 
-### Remaining release blocker
-GitHub Actions stopped at manifest signing because the new repository does not have the `UPDATE_SIGNING_PRIVATE_KEY` secret. No executable files or unsigned update manifest were published. Local artifacts remain under `dist/v2.0.2/`. After configuring the matching secret, run **Build PC release draft** on `main` with tag `v2.0.2`.
+### Current release status
+After the `UPDATE_SIGNING_PRIVATE_KEY` secret was added, [GitHub Actions](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/45960310720) passed regression tests, Windows packaging, and manifest signing/verification. It created a [v2.0.2 draft](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/untagged-e909017985d54179241f) and uploaded Setup, Portable, blockmap, and the signed `latest.yml`. The draft is not public yet.
+
+The local `dist/latest.yml` remains unsigned and is different from the signed CI manifest attached to the draft.
 
 MPEG-DASH was not tested against a real provider, DRM is not claimed, and the Windows files do not have Authenticode signatures.
