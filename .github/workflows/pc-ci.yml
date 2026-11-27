@@ -1,0 +1,94 @@
+name: PC CI — tests + build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: SSRF guards
+        run: npm run test:ssrf
+
+      - name: Net guard (real module)
+        run: npm run test:net-guard
+
+      - name: Hardening regressions
+        run: npm run test:hardening
+
+      - name: PRO features
+        run: npm run test:pro
+
+      - name: PRO IPC integration
+        run: npm run test:pro-ipc
+
+      - name: Media integration (real ffmpeg + downloads)
+        run: npm run test:media
+
+      - name: Source classification
+        run: npm run test:classification
+
+      - name: Secrets audit (no Electron required)
+        run: npm run test:secrets:audit
+
+      - name: Backup / restore
+        run: npm run test:backup
+
+      - name: Update guard (rollback safety)
+        run: npm run test:update-guard
+
+      - name: Signed update manifest verification
+        run: npm run test:manifest-signature
+
+      - name: Multiview failed-stream actions regression
+        run: npm run test:multiview-overlay
+
+      - name: EPG streaming parser
+        run: npm run test:epg-stream
+
+      - name: Classification parity (JS fixtures)
+        run: npm run test:classification-parity
+
+      - name: Secrets integration (Electron)
+        run: npm run test:secrets
+
+  build:
+    runs-on: windows-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Package app (no publish)
+        run: npm run pack
+
+      - name: Upload packaged app
+        uses: actions/upload-artifact@v4
+        with:
+          name: gomiz-pc-portable
+          path: dist/win-unpacked/**
