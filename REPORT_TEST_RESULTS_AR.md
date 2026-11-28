@@ -7,6 +7,9 @@
 | الفحص | النتيجة | الدليل أو النطاق |
 |---|---|---|
 | 16 مجموعة اختبار Node | PASS | SSRF، classification، secrets audit، backup، update guard، manifest signature، EPG stream، classification parity، net guard، hardening، PRO، PRO IPC، media، player engine، multiview overlay، bugfix |
+| `npm run test:navigation` | PASS | 21 فحصاً حقيقياً لتنقل القنوات والتركيز |
+| `npm run test:scheduled-recording` | PASS | جدولة وتسجيل حقيقي بملف TS محلي؛ ظهور الملف في التسجيلات دون إعادة تشغيل |
+| `npm run test:sidebar` | PASS | 13 عنصراً، مركز القائمة 426.5 مقابل مركز الشريط 440.5، الشعار أعلى 20px واللغة أسفل 16px |
 | `npm run test:secrets` | PASS | تشفير/فك تشفير آمن، رفض كلمة مرور خاطئة، فشل واضح عند تلف البيانات |
 | `npm run test:ui` | PASS | Playwright UI Smoke + Multiview؛ بلا أخطاء JavaScript |
 | `npm run smoke` | PASS | `SMOKE_RESULT PASS` ورمز خروج 0، مع `parental-pin-set:ok` و`pro-parental-set:ok` و`parental-pin-clear:ok` |
@@ -62,6 +65,9 @@
 | Check | Result | Evidence |
 |---|---|---|
 | 16 Node regression groups | PASS | SSRF, classification, secrets audit, backup, update guard, manifest signature, EPG, parity, net guard, hardening, PRO, PRO IPC, media, player engine, Multiview overlay, bugfix |
+| `test:navigation` | PASS | 21 real channel-navigation/focus checks |
+| `test:scheduled-recording` | PASS | Real scheduled recording; file visible without restart |
+| `test:sidebar` | PASS | 13 items centered (nav center 426.5 vs sidebar 440.5), brand 20px top, language 16px bottom |
 | Electron secrets | PASS | Encryption/decryption and failure modes |
 | Playwright UI smoke + Multiview | PASS | No JavaScript errors |
 | Smoke test | PASS | `SMOKE_RESULT PASS`, exit 0, parental PIN steps ok |

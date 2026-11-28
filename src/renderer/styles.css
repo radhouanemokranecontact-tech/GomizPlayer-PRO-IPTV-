@@ -2172,3 +2172,13 @@ html[data-perf="low"] * { box-shadow: 0 2px 6px rgba(0,0,0,0.35) !important; }
   outline-offset: 2px;
 }
 .drawer-item.on:focus-visible { outline-color: #fff; }
+
+
+/* Sidebar: center the 13 navigation items vertically while keeping the brand at top and the language footer at bottom. */
+.sidebar { justify-content: flex-start; gap: 0; padding-top: 20px; }
+.sidebar > .brand { position: static; flex: 0 0 auto; }
+.nav-stack { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 8px; overflow-y: auto; overflow-x: hidden; }
+.nav-stack > .nav { flex: 0 0 auto; }
+.sidebar .nav { gap: 3px; }
+.sidebar .nav-sep { margin: 10px 10px; }
+.sidebar-footer { margin-top: 0; flex: 0 0 auto; }
