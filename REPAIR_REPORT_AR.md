@@ -52,8 +52,9 @@
 - `verify:release-manifest` على `dist/latest.yml` المحلي يفشل متوقعاً لأن البيان المحلي غير موقّع؛ البيان الموقّع يُنشأ في CI بالسر `UPDATE_SIGNING_PRIVATE_KEY`.
 
 ## النشر
-- نجح [سير CI](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46130450678) و[سير الإصدار](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46130458930).
-- نُشر [إصدار v2.0.4](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.4) بأصول CI الموقّعة، مع نسخ البناء المحلي موسومة بـ `-local`.
+- نجح [سير CI](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46133796401) و[سير الإصدار](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46133811286).
+- تحقّق من توقيع `latest.yml` المرفوع: `PASS release manifest signature v2.0.4`.
+- نُشر [إصدار v2.0.4](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.4) بـ 8 أصول: أصول CI الموقّعة المعتمدة للتحديث، ونسخ البناء المحلي موسومة بـ `-local` للتشخيص.
 - أُصلح إصدار v2.0.2 برفع أصوله ونشره.
 
 ## حدود
