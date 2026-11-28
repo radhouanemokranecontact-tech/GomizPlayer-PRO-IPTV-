@@ -3,8 +3,8 @@
   "version": "2.0.5",
   "releaseDate": "2026-11-28",
   "reviewed": "2026-11-28",
-  "commit": "87a69d7c53ce01143847ca0126a80417431d7d9b",
-  "sourceHash": "f5001012fe07a5389e40130677139746bb82ef9a1c2b1ec02e9360c822d5c69e",
+  "commit": "5c6bc1991c702e7d76ae50169dcac97cfa4da81e",
+  "sourceHash": "aec3ec87cd3ad5a59fb5d1d5f4f36c363a0bf605a47b8011f852850e6e7f82fa",
   "tests": {
     "total": 22,
     "passed": 22,

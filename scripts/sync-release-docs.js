@@ -67,7 +67,11 @@ function hashSources() {
   walk(path.join(root, 'src'));
   files.sort();
   const h = crypto.createHash('sha256');
-  for (const f of files) { h.update(path.relative(root, f)); h.update(fs.readFileSync(f)); }
+  // Normalize CRLF so local Windows and CI checkouts produce the same hash.
+  for (const f of files) {
+    h.update(path.relative(root, f));
+    h.update(fs.readFileSync(f).toString('latin1').replace(/\r\n/g, '\n'));
+  }
   return h.digest('hex');
 }
 let commit = '';
