@@ -1,5 +1,6 @@
 'use strict';
 /* IPC surface for GomizPlayer PRO features. All channels are prefixed `pro:` and sender-checked. */
+const crypto = require('crypto');
 const fsp = require('fs/promises');
 const { buildIndex, alternativesFor, dedupeItems } = require('./dedupe');
 const { buildCatchupUrl } = require('./catchup');
@@ -15,6 +16,19 @@ const MAX_HEALTH_ENTRIES = 100000;
 function register(deps) {
   const { ipcMain, dialog, getWin, assertTrustedSender, store, readCache, writeCache, verifyAppLockPin, startRecording, stopRecording, isRecording, assertSafeUrl, appVersion } = deps;
   const guard = (fn) => async (event, payload) => { assertTrustedSender(event); return fn(payload || {}, event); };
+
+  /* Parental PIN — deliberately independent of the Settings app lock.
+   * Stored as scrypt hash + salt only; never returned to the renderer. */
+  const pinSet = () => { const s = store.settings || {}; return !!(s.proParentalPinHash && s.proParentalPinSalt); };
+  const verifyPin = (pin) => {
+    const s = store.settings || {};
+    if (!s.proParentalPinHash || !s.proParentalPinSalt) return false;
+    try {
+      const expected = Buffer.from(s.proParentalPinHash, 'base64');
+      const got = crypto.scryptSync(String(pin || ''), Buffer.from(s.proParentalPinSalt, 'base64'), expected.length);
+      return expected.length === got.length && crypto.timingSafeEqual(expected, got);
+    } catch (_) { return false; }
+  };
 
   const healthMap = () => (readCache('health') || {});
   const flagCtx = () => {
@@ -138,22 +152,38 @@ function register(deps) {
   sched.recoverAfterRestart();
   sched.start();
 
-  /* ---------- parental ---------- */
-  const lockSet = () => { const s = store.settings || {}; return !!(s.appLockHash || s.appLockPin); };
-  ipcMain.handle('pro:parental:get', guard(() => ({ config: normalizeConfig((store.settings || {}).proParental), lockSet: lockSet() })));
+  /* ---------- parental (own PIN, independent of Settings app lock) ---------- */
+  ipcMain.handle('pro:parental:get', guard(() => ({
+    config: normalizeConfig((store.settings || {}).proParental),
+    pinSet: pinSet()
+  })));
+  ipcMain.handle('pro:parental:pin:set', guard(async (p) => {
+    if (pinSet() && !verifyPin(p.currentPin)) return { ok: false, error: 'pin' };
+    const value = String(p.pin || '').trim();
+    if (!value) {
+      store.patchSettings({ proParentalPinHash: '', proParentalPinSalt: '' });
+      return { ok: true, pinSet: false };
+    }
+    if (value.length > 64) return { ok: false, error: 'invalid' };
+    try {
+      const salt = crypto.randomBytes(16);
+      const hash = crypto.scryptSync(value, salt, 64);
+      store.patchSettings({ proParentalPinHash: hash.toString('base64'), proParentalPinSalt: salt.toString('base64') });
+      return { ok: true, pinSet: true };
+    } catch (_) { return { ok: false, error: 'unavailable' }; }
+  }));
+  ipcMain.handle('pro:parental:pin:verify', guard(async (p) => ({ ok: verifyPin(p.pin) })));
   ipcMain.handle('pro:parental:set', guard(async (p) => {
     const cur = normalizeConfig((store.settings || {}).proParental);
     const next = normalizeConfig(p);
     const pinRequired = cur.enabled || next.enabled;
-    // Enabling content filtering without an app lock makes it trivial to disable accidentally.
-    if (next.enabled && !lockSet()) return { ok: false, error: 'lock-required' };
-    if (pinRequired && lockSet()) {
-      const v = await verifyAppLockPin(String(p.pin || ''));
-      if (!v || !v.ok) return { ok: false, error: 'pin', locked: !!(v && v.locked) };
-    }
+    // A dedicated parental PIN must be set here in PRO Tools; the Settings app
+    // lock is no longer involved.
+    if (next.enabled && !pinSet()) return { ok: false, error: 'pin-required' };
+    if (pinRequired && pinSet() && !verifyPin(p.pin)) return { ok: false, error: 'pin' };
     store.patchSettings({ proParental: next });
     applyFlagsToCaches();
-    return { ok: true, config: next, lockSet: lockSet(), warning: (!lockSet() && next.enabled) ? 'no-pin' : '' };
+    return { ok: true, config: next, pinSet: pinSet() };
   }));
 
   /* ---------- export ---------- */

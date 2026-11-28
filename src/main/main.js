@@ -1122,16 +1122,15 @@ function createWindow() {
                 log.push('pro-health-summary:' + (sum && (sum.ok + sum.dead + sum.unknown) > 0 ? 'ok' : 'FAIL'));
                 await window.api.pro.health.clear();
                 if (healthSourceId) await window.api.sources.remove(healthSourceId);
-                // Parental filtering is PIN-protected since 2.0.2: set a temporary
-                // app-lock PIN first, then pass it to both enable and disable calls.
-                const lockSet = await window.api.appLock.set({ enabled: true, pin: '1234' });
-                log.push('applock-set:' + (lockSet && lockSet.ok ? 'ok' : 'FAIL'));
+                // Parental controls use their own PIN, independent of the Settings app lock.
+                const pinSet = await window.api.pro.parental.setPin({ pin: '1234' });
+                log.push('parental-pin-set:' + (pinSet && pinSet.ok ? 'ok' : 'FAIL'));
                 const exp = await window.api.pro.parental.set({ enabled: true, keywords: ['zzzz'], lockedGroups: [], pin: '1234' });
                 log.push('pro-parental-set:' + (exp && exp.ok ? 'ok' : 'FAIL(' + ((exp && exp.error) || 'unknown') + ')'));
                 const dis = await window.api.pro.parental.set({ enabled: false, keywords: [], lockedGroups: [], pin: '1234' });
                 log.push('pro-parental-clear:' + (dis && dis.ok ? 'ok' : 'FAIL(' + ((dis && dis.error) || 'unknown') + ')'));
-                const lockClear = await window.api.appLock.set({ enabled: false, currentPin: '1234' });
-                log.push('applock-clear:' + (lockClear && lockClear.ok ? 'ok' : 'FAIL'));
+                const pinClear = await window.api.pro.parental.setPin({ pin: '', currentPin: '1234' });
+                log.push('parental-pin-clear:' + (pinClear && pinClear.ok ? 'ok' : 'FAIL'));
               } catch (e) { log.push('pro-EX:' + (e && e.message)); }
 
               window.__novaTest.state.library.search = await window.api.library.search('demo');

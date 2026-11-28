@@ -1,10 +1,16 @@
-# تقرير الإصلاح والتحقق — GomizPlayer PRO IPTV 2.0.3
+# تقرير الإصلاح والتحقق — GomizPlayer PRO IPTV 2.0.4
 
-**الحالة:** يخص هذا التقرير شيفرة `main` والإصدار 2.0.3. التقرير السابق محفوظ في `docs/archive/REPAIR_REPORT_AR-2.0.0.md`.
+**الحالة:** يخص هذا التقرير شيفرة `main` والإصدار 2.0.4. التقرير السابق محفوظ في `docs/archive/REPAIR_REPORT_AR-2.0.0.md`.
 
 ## ما أُصلح في هذه الجولة
 
 أخطاء حقيقية تم العثور عليها بالتحليل ومراجعة الشيفرة وإصلاحها:
+
+### فصل الرقابة الأبوية عن قفل التطبيق (طلب المستخدم 2.0.4)
+- كانت الرقابة الأبوية تتطلب رمز PIN الخاص بقفل التطبيق الموجود في الإعدادات، مع رسالة «عيّن رمز PIN لقفل التطبيق من الإعدادات قبل تفعيل الرقابة الأبوية».
+- أصبحت الرقابة الأبوية تمتلك **PIN خاصاً بها داخل PRO Tools**، مستقلاً تماماً عن قفل التطبيق: قنوات `pro:parental:pin:set` و`pro:parental:pin:verify`، وتخزين `proParentalPinHash` / `proParentalPinSalt` فقط (لا يُعرض الرمز أبداً).
+- تفعيل/إيقاف الرقابة ومنع التلاعب بها يتطلبان PIN الرقابة نفسها؛ قفل التطبيق لا يؤثر عليها ولا يُطلب لتفعيلها.
+- واجهة PRO Tools تعرض الآن حقل «الرمز الحالي» و«الرمز الجديد» وأزرار «عيّن رمزاً / تغيير الرمز / إزالة الرمز»، مع نص توضيحي بأنه مستقل عن إعدادات التطبيق.
 
 ### الأمان والمنطق في العملية الرئيسية
 - **تجاوز قفل التطبيق:** كان `settings:patch` يستطيع مسح `appLockHash` / `appLockPin` دون PIN، مما يلغي حماية الرقابة الأبوية. نُقل تغيير القفل إلى قناة `applock:set` المحمية بـ PIN، وأصبح `settings:patch` يتجاهل حقول القفل تماماً.
@@ -42,12 +48,12 @@
 - `npm run test:ui` (Playwright UI Smoke + Multiview): نجح بلا أخطاء JavaScript.
 - `npm run smoke`: `SMOKE_RESULT PASS` ورمز الخروج 0.
 - `npm audit`: 0 ثغرات معلنة.
-- بناء Windows محلي 2.0.3: نجح (NSIS + Portable + blockmap)، وطابق `dist/latest.yml` الحجم وبصمة SHA-512 لملف Setup.
+- بناء Windows محلي 2.0.4: نجح (NSIS + Portable + blockmap)، وطابق `dist/latest.yml` الحجم وبصمة SHA-512 لملف Setup.
 - `verify:release-manifest` على `dist/latest.yml` المحلي يفشل متوقعاً لأن البيان المحلي غير موقّع؛ البيان الموقّع يُنشأ في CI بالسر `UPDATE_SIGNING_PRIVATE_KEY`.
 
 ## النشر
 - نجح [سير CI](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46130450678) و[سير الإصدار](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46130458930).
-- نُشر [إصدار v2.0.3](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.3) بأصول CI الموقّعة، مع نسخ البناء المحلي موسومة بـ `-local`.
+- نُشر [إصدار v2.0.4](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.4) بأصول CI الموقّعة، مع نسخ البناء المحلي موسومة بـ `-local`.
 - أُصلح إصدار v2.0.2 برفع أصوله ونشره.
 
 ## حدود
@@ -56,7 +62,10 @@
 
 ## English
 
-This report covers the current 2.0.3 source. It records real bugs found by analysis and code review, not only documentation changes.
+This report covers the current 2.0.4 source. It records real bugs found by analysis and code review, not only documentation changes.
+
+### Parental PIN separated from the app lock (2.0.4 request)
+Parental controls no longer depend on the Settings app lock. PRO Tools now manages its own PIN through `pro:parental:pin:set` / `pro:parental:pin:verify`, storing only a scrypt hash and salt. Enabling, disabling and changing parental settings require that dedicated PIN; the Settings app lock is neither required nor usable for this purpose. The UI offers set/change/clear PIN controls and explains the separation.
 
 ### Fixed
 - App lock could be cleared through generic `settings:patch`, bypassing PIN-protected parental controls. Lock changes now go through `applock:set`, which verifies the current PIN.

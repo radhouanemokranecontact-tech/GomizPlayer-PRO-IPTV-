@@ -165,7 +165,9 @@ contextBridge.exposeInMainWorld('api', {
     },
     parental: {
       get: () => invoke('pro:parental:get'),
-      set: (cfg) => invoke('pro:parental:set', cfg)
+      set: (cfg) => invoke('pro:parental:set', cfg),
+      setPin: (payload) => invoke('pro:parental:pin:set', payload),
+      verifyPin: (pin) => invoke('pro:parental:pin:verify', { pin })
     },
     exportM3U: (opts) => invoke('pro:export:m3u', opts)
   },

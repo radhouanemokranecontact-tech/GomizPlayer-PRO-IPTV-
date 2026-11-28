@@ -1,6 +1,6 @@
 # GomizPlayer PRO IPTV â€” Ø§Ù„Ø¯Ù„ÙŠÙ„ Ø§Ù„ØªÙ‚Ù†ÙŠ | Technical Guide
 
-**Ø§Ù„Ø¥ØµØ¯Ø§Ø± Ø§Ù„Ù…ÙˆØµÙˆÙ / Version described:** 2.0.3 Â· **Ø¢Ø®Ø± Ù…Ø±Ø§Ø¬Ø¹Ø© / Reviewed:** 2026-11-27
+**Ø§Ù„Ø¥ØµØ¯Ø§Ø± Ø§Ù„Ù…ÙˆØµÙˆÙ / Version described:** 2.0.4 Â· **Ø¢Ø®Ø± Ù…Ø±Ø§Ø¬Ø¹Ø© / Reviewed:** 2026-11-27
 ÙÙŠ PowerShell Ø§Ø³ØªØ®Ø¯Ù… `npm.cmd` Ø¥Ø°Ø§ ÙƒØ§Ù† ØªØ´ØºÙŠÙ„ Ù…Ù„ÙØ§Øª `npm.ps1` Ù…Ù…Ù†ÙˆØ¹Ø§Ù‹ Ø¨Ø³ÙŠØ§Ø³Ø© Ø§Ù„Ù†Ø¸Ø§Ù…. / In PowerShell, use `npm.cmd` when the system execution policy blocks `npm.ps1`.
 Ù…ØµØ¯Ø± Ø­Ù‚Ø§Ø¦Ù‚ Ø§Ù„Ø¥ØµØ¯Ø§Ø± Ù‡Ùˆ Ø§Ù„Ø´ÙŠÙØ±Ø© Ùˆ`package.json` ÙˆÙ†ØªØ§Ø¦Ø¬ Ø§Ù„Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª Ø§Ù„Ù…Ø³Ø¬Ù„Ø© ÙÙŠ [`REPORT_TEST_RESULTS_AR.md`](REPORT_TEST_RESULTS_AR.md). Ù„Ø§ ØªÙØ¹Ø¯Ù‘ Ø§Ù„Ù…ÙŠØ²Ø§Øª ØºÙŠØ± Ø§Ù„Ù…Ø®ØªØ¨Ø±Ø© ÙˆØ¹ÙˆØ¯ ØªÙˆØ§ÙÙ‚.
 
@@ -22,7 +22,7 @@
 ### Ø§Ù„ØªØ­Ø¯ÙŠØ«Ø§Øª ÙˆØ§Ù„Ø¨Ù†Ø§Ø¡
 - Ø§Ù„ØªØ­Ø¯ÙŠØ«Ø§Øª ØªØ¹ØªÙ…Ø¯ `electron-updater` ÙˆØ¨ÙŠØ§Ù† `latest.yml` Ù…ÙˆÙ‚Ø¹Ø§Ù‹ Ø¨Ù€ Ed25519Ø› ÙŠØªØ­Ù‚Ù‚ Ø§Ù„ØªØ·Ø¨ÙŠÙ‚ Ù…Ù† Ø§Ù„Ø¨ÙŠØ§Ù† ÙˆØ§Ù„Ù…Ù„Ù Ù‚Ø¨Ù„ Ø§Ù„ØªÙ†Ø²ÙŠÙ„. Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø§Ù„Ø¢Ù…Ù† Ù…Ø±ØªØ¨Ø· Ø¨Ø­Ø§Ø±Ø³ Ø§Ù„Ø¥ØµØ¯Ø§Ø±.
 - `npm run dist` ÙŠØ¨Ù†ÙŠ NSIS ÙˆPortable x64 ÙˆÙŠØ¶Ø¹ Ø§Ù„Ù†ØªØ§Ø¦Ø¬ ØªØ­Øª `dist/v<version>/`.
-- Ø¥ØµØ¯Ø§Ø± 2.0.3 Ø¨ÙÙ†ÙŠ Ù…Ø­Ù„ÙŠØ§Ù‹ ÙˆØ¹Ù„Ù‰ GitHub Actions ÙˆÙ†ÙØ´Ø± [Ù„Ù„Ø¹Ø§Ù…Ø©](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.3) Ø¨Ø£ØµÙˆÙ„ Setup ÙˆPortable Ùˆblockmap Ùˆ`latest.yml` Ø§Ù„Ù…ÙˆÙ‚Ù‘Ø¹.
+- Ø¥ØµØ¯Ø§Ø± 2.0.4 Ø¨ÙÙ†ÙŠ Ù…Ø­Ù„ÙŠØ§Ù‹ ÙˆØ¹Ù„Ù‰ GitHub Actions ÙˆÙ†ÙØ´Ø± [Ù„Ù„Ø¹Ø§Ù…Ø©](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.4) Ø¨Ø£ØµÙˆÙ„ Setup ÙˆPortable Ùˆblockmap Ùˆ`latest.yml` Ø§Ù„Ù…ÙˆÙ‚Ù‘Ø¹.
 - `dist/latest.yml` Ø§Ù„Ù…Ø­Ù„ÙŠ ØºÙŠØ± Ù…ÙˆÙ‚Ù‘Ø¹ØŒ Ø¨ÙŠÙ†Ù…Ø§ Ø¨ÙŠØ§Ù† CI Ø§Ù„Ù…Ø±ÙÙ‚ Ø¨Ø§Ù„Ø¥ØµØ¯Ø§Ø± Ù…ÙˆÙ‚Ù‘Ø¹ ÙˆÙ…ØªØ­Ù‚Ù‚ Ù…Ù†Ù‡. Ù…Ù„ÙØ§Øª Windows Ù„Ø§ ØªØ­Ù…Ù„ ØªÙˆÙ‚ÙŠØ¹ Authenticode.
 
 ### Ø§Ù„ÙØ­ÙˆØµ Ø§Ù„Ù…Ù†ÙØ°Ø© ÙˆØ§Ù„Ø­Ø¯ÙˆØ¯
@@ -54,7 +54,7 @@ A Windows desktop IPTV/VOD player built with Electron and JavaScript. It manages
 ### Updates and builds
 - Updates use `electron-updater` and an Ed25519-signed `latest.yml`; the app validates the manifest and artifact before download. Safe rollback is handled by the update guard.
 - `npm run dist` builds the NSIS installer and x64 portable executable under `dist/v<version>/`.
-- Version 2.0.3 was built locally and by GitHub Actions and is [publicly released](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.3) with Setup, Portable, blockmap, and signed `latest.yml`.
+- Version 2.0.4 was built locally and by GitHub Actions and is [publicly released](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.4) with Setup, Portable, blockmap, and signed `latest.yml`.
 - Local `dist/latest.yml` is unsigned, while the CI manifest attached to the release is signed and verified. Windows executables do not have Authenticode signatures.
 
 ### Verification and limits

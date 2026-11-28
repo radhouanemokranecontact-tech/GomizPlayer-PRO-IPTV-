@@ -1,11 +1,11 @@
 # GomizPlayer PRO IPTV â€” Ø®Ø§Ø±Ø·Ø© Ø§Ù„Ø·Ø±ÙŠÙ‚ | Roadmap
 
-**Ù†Ø·Ø§Ù‚ Ù‡Ø°Ø§ Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹ / Repository scope:** ØªØ·Ø¨ÙŠÙ‚ Windows ÙÙ‚Ø· Â· **Ù†Ø³Ø®Ø© Ø§Ù„Ù…ØµØ¯Ø± / Source version:** 2.0.3 Â· **Ø¢Ø®Ø± Ù…Ø±Ø§Ø¬Ø¹Ø© / Reviewed:** 2026-11-27
+**Ù†Ø·Ø§Ù‚ Ù‡Ø°Ø§ Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹ / Repository scope:** ØªØ·Ø¨ÙŠÙ‚ Windows ÙÙ‚Ø· Â· **Ù†Ø³Ø®Ø© Ø§Ù„Ù…ØµØ¯Ø± / Source version:** 2.0.4 Â· **Ø¢Ø®Ø± Ù…Ø±Ø§Ø¬Ø¹Ø© / Reviewed:** 2026-11-27
 
 ## Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©
 
 ### Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø­Ø§Ù„ÙŠØ©
-Ø§Ù„Ø´ÙŠÙØ±Ø© Ø§Ù„Ø­Ø§Ù„ÙŠØ© ÙÙŠ `main` Ù‡ÙŠ 2.0.3. Ø§ÙƒØªÙ…Ù„ Ù†Ù‚Ù„ Ø§Ù„Ù…ØµØ¯Ø± ÙˆØ§Ù„ØªÙˆØ«ÙŠÙ‚ØŒ ÙˆØ§Ø¬ØªØ§Ø²Øª Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª CI ÙˆØ§Ù„Ø¨Ù†Ø§Ø¡ ÙˆØ§Ù„ØªÙˆÙ‚ÙŠØ¹ØŒ ÙˆÙ†ÙØ´Ø± [Ø¥ØµØ¯Ø§Ø± v2.0.3 Ù„Ù„Ø¹Ø§Ù…Ø©](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.3) Ø¨Ø£ØµÙˆÙ„Ù‡ Ø§Ù„Ø£Ø±Ø¨Ø¹Ø©.
+Ø§Ù„Ø´ÙŠÙØ±Ø© Ø§Ù„Ø­Ø§Ù„ÙŠØ© ÙÙŠ `main` Ù‡ÙŠ 2.0.4. Ø§ÙƒØªÙ…Ù„ Ù†Ù‚Ù„ Ø§Ù„Ù…ØµØ¯Ø± ÙˆØ§Ù„ØªÙˆØ«ÙŠÙ‚ØŒ ÙˆØ§Ø¬ØªØ§Ø²Øª Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª CI ÙˆØ§Ù„Ø¨Ù†Ø§Ø¡ ÙˆØ§Ù„ØªÙˆÙ‚ÙŠØ¹ØŒ ÙˆÙ†ÙØ´Ø± [Ø¥ØµØ¯Ø§Ø± v2.0.4 Ù„Ù„Ø¹Ø§Ù…Ø©](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.4) Ø¨Ø£ØµÙˆÙ„Ù‡ Ø§Ù„Ø£Ø±Ø¨Ø¹Ø©.
 
 ### Ø§Ù„Ù…Ù†Ø¬Ø² ÙÙŠ Ø§Ù„ØªØ·Ø¨ÙŠÙ‚
 - Ø¥Ø¯Ø§Ø±Ø© Ù…ØµØ§Ø¯Ø± M3U/M3U8 ÙˆXtream ÙˆØ±ÙˆØ§Ø¨Ø· Ø§Ù„Ø¨Ø«.
@@ -25,7 +25,7 @@
 ## English
 
 ### Current status
-The source on `main` is version 2.0.3. Source and documentation have been moved; release CI regressions, Windows packaging, and manifest signing passed. [Release v2.0.3 is publicly available](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.3) with all four assets.
+The source on `main` is version 2.0.4. Source and documentation have been moved; release CI regressions, Windows packaging, and manifest signing passed. [Release v2.0.4 is publicly available](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.4) with all four assets.
 
 ### Implemented in the app
 - M3U/M3U8, Xtream, and direct stream source management.

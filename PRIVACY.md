@@ -49,7 +49,7 @@
 
 **Last reviewed:** 2026-11-27
 
-This policy describes optional diagnostics/analytics and network requests in GomizPlayer PRO IPTV 2.0.3.
+This policy describes optional diagnostics/analytics and network requests in GomizPlayer PRO IPTV 2.0.4.
 
 ## 1. Data that may be sent
 

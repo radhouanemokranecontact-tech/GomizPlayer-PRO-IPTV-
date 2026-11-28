@@ -1,6 +1,6 @@
 {
   "name": "gomizplayer-pro-iptv",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "GomizPlayer PRO IPTV — IPTV/VOD player with channel health scan, auto-failover, catch-up, scheduled recording and parental controls (Electron).",
   "main": "src/main/main.js",
   "author": "GomizPlayer",

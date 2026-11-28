@@ -19,11 +19,13 @@ const STR = {
     no_sched: 'Nothing scheduled', channel: 'Channel', search_channel: 'Search channel…', start_time: 'Start', minutes: 'Duration (min)',
     add_sched: 'Schedule', remove: 'Remove', st_scheduled: 'Scheduled', st_recording: 'Recording', st_done: 'Done', st_failed: 'Failed', st_missed: 'Missed',
     pick_channel: 'Pick a channel first', bad_time: 'Choose a start time in the future', scheduled_ok: 'Recording scheduled',
-    parental: 'Parental controls', parental_hint: 'Hide adult and unwanted content. Set an app-lock PIN before enabling this filter.',
+    parental: 'Parental controls', parental_hint: 'Hide adult and unwanted content. Set a parental PIN here before enabling this filter — it is independent of the app lock in Settings.',
     enabled: 'Enabled', keywords: 'Hidden keywords (comma separated)', locked_groups: 'Hidden categories (comma separated)',
     use_defaults: 'Use built-in adult keywords', pin: 'PIN', save: 'Save', saved: 'Saved', wrong_pin: 'Wrong PIN',
-    no_pin_warn: 'Tip: set an app-lock PIN in Settings so nobody can switch this off.',
-    parental_lock_required: 'Set an app-lock PIN in Settings before enabling parental controls.',
+    parental_pin: 'Parental PIN', pin_current: 'Current PIN', pin_new: 'New PIN',
+    set_pin: 'Set PIN', change_pin: 'Change PIN', clear_pin: 'Clear PIN',
+    pin_required: 'Set a parental PIN in this panel before enabling parental controls.',
+    pin_saved: 'Parental PIN saved', pin_cleared: 'Parental PIN cleared', pin_note: 'This PIN is separate from the app lock in Settings.',
     export: 'Export playlist', export_hint: 'Create a clean M3U from your library. Note: the file may contain your provider login inside the URLs — keep it private.',
     export_dedupe: 'Export without duplicates', export_alive: 'Export verified-working only', exported: 'Exported', export_empty: 'Nothing to export',
     catchup: 'Catch-up', catchup_title: 'Catch-up — past programmes', catchup_none: 'No past programmes available for this channel', catchup_na: 'This channel does not advertise catch-up',
@@ -44,11 +46,13 @@ const STR = {
     no_sched: 'لا شيء مجدول', channel: 'القناة', search_channel: 'ابحث عن قناة…', start_time: 'البداية', minutes: 'المدة (دقيقة)',
     add_sched: 'جدولة', remove: 'حذف', st_scheduled: 'مجدول', st_recording: 'يسجّل', st_done: 'تم', st_failed: 'فشل', st_missed: 'فات',
     pick_channel: 'اختر قناة أولاً', bad_time: 'اختر وقت بداية في المستقبل', scheduled_ok: 'تمت جدولة التسجيل',
-    parental: 'الرقابة الأبوية', parental_hint: 'أخفِ المحتوى للكبار وغير المرغوب. عيّن PIN لقفل التطبيق قبل تفعيل هذا المرشح.',
+    parental: 'الرقابة الأبوية', parental_hint: 'أخفِ المحتوى للكبار وغير المرغوب. عيّن رمز PIN للرقابة الأبوية هنا قبل تفعيل المرشح؛ هو مستقل عن قفل التطبيق في الإعدادات.',
     enabled: 'مفعّلة', keywords: 'كلمات مخفية (مفصولة بفاصلة)', locked_groups: 'تصنيفات مخفية (مفصولة بفاصلة)',
     use_defaults: 'استخدام كلمات المحتوى للكبار المدمجة', pin: 'رمز PIN', save: 'حفظ', saved: 'تم الحفظ', wrong_pin: 'رمز PIN خاطئ',
-    no_pin_warn: 'نصيحة: عيّن رمز PIN لقفل التطبيق من الإعدادات حتى لا يستطيع أحد إيقاف هذه الميزة.',
-    parental_lock_required: 'عيّن رمز PIN لقفل التطبيق من الإعدادات قبل تفعيل الرقابة الأبوية.',
+    parental_pin: 'PIN الرقابة الأبوية', pin_current: 'الرمز الحالي', pin_new: 'الرمز الجديد',
+    set_pin: 'عيّن رمزاً', change_pin: 'تغيير الرمز', clear_pin: 'إزالة الرمز',
+    pin_required: 'عيّن رمز PIN للرقابة الأبوية في هذه اللوحة قبل تفعيلها.',
+    pin_saved: 'تم حفظ رمز الرقابة الأبوية', pin_cleared: 'تمت إزالة رمز الرقابة الأبوية', pin_note: 'هذا الرمز مستقل عن قفل التطبيق في الإعدادات.',
     export: 'تصدير قائمة التشغيل', export_hint: 'أنشئ ملف M3U نظيفاً من مكتبتك. تنبيه: قد يحتوي الملف على بيانات دخول المزوّد داخل الروابط — احتفظ به بخصوصية.',
     export_dedupe: 'تصدير بدون تكرار', export_alive: 'تصدير القنوات التي تعمل فقط', exported: 'تم التصدير', export_empty: 'لا يوجد ما يُصدَّر',
     catchup: 'مشاهدة ما فات', catchup_title: 'مشاهدة ما فات — برامج سابقة', catchup_none: 'لا توجد برامج سابقة لهذه القناة', catchup_na: 'هذه القناة لا تدعم مشاهدة ما فات',
@@ -177,29 +181,55 @@ function render(view, c) {
   sc.appendChild(fr2); view.appendChild(sc);
   const poll = setInterval(() => { if (!alive()) { clearInterval(poll); return; } loadSched(); }, 15000); unsubs.push(() => clearInterval(poll));
 
-  /* ---------- parental ---------- */
+  /* ---------- parental (dedicated PIN, independent of Settings app lock) ---------- */
   const pc = card(tr('parental'), tr('parental_hint'));
   const pbox = el('div'); pc.appendChild(pbox); view.appendChild(pc);
   api.parental.get().then((r) => {
-    if (!alive()) return; const cfg = r.config; let enabled = cfg.enabled, useDef = cfg.useDefaults;
+    if (!alive()) return;
+    const cfg = r.config;
+    let enabled = cfg.enabled, useDef = cfg.useDefaults, hasPin = !!r.pinSet;
+
     const kw = el('textarea', 'textarea'); kw.rows = 2; kw.value = cfg.keywords.join(', ');
     const gr = el('textarea', 'textarea'); gr.rows = 2; gr.value = cfg.lockedGroups.join(', ');
-    const pin = input('password', tr('pin')); pin.autocomplete = 'off'; pin.style.maxWidth = '160px';
-    const pinField = el('div', 'field'); pinField.appendChild(pin);
-    pinField.hidden = !r.lockSet || !cfg.enabled;
+    const curPin = input('password', tr('pin_current')); curPin.autocomplete = 'off'; curPin.style.maxWidth = '160px';
+    const curField = el('div', 'field'); curField.appendChild(curPin); curField.hidden = !hasPin;
+
     pbox.appendChild(toggleRow(tr('enabled'), '', enabled, (on) => {
-      enabled = on;
-      if (r.lockSet) pinField.hidden = !(cfg.enabled || on);
+      enabled = on; curField.hidden = !hasPin;
     }));
     pbox.appendChild(toggleRow(tr('use_defaults'), '', useDef, (on) => { useDef = on; }));
     const f1 = el('div', 'field'); f1.appendChild(el('label', null, tr('keywords'))); f1.appendChild(kw); pbox.appendChild(f1);
     const f2 = el('div', 'field'); f2.appendChild(el('label', null, tr('locked_groups'))); f2.appendChild(gr); pbox.appendChild(f2);
+
+    // Own PIN management, completely separate from the app lock in Settings.
+    const pinTitle = el('h3', null, tr('parental_pin')); pinTitle.style.marginTop = '14px'; pbox.appendChild(pinTitle);
+    const pinNote = el('p', 'list-sub', tr('pin_note')); pbox.appendChild(pinNote);
+    const pinRow = row();
+    const newPin = input('password', tr('pin_new')); newPin.autocomplete = 'off'; newPin.style.maxWidth = '160px';
+    pinRow.appendChild(newPin);
+    pinRow.appendChild(makeButton(hasPin ? tr('change_pin') : tr('set_pin'), { cls: 'btn btn-ghost', onClick: async () => {
+      const res = await api.parental.setPin({ pin: newPin.value, currentPin: curPin.value });
+      newPin.value = ''; curPin.value = '';
+      if (!res || !res.ok) return toast(res && res.error === 'pin' ? tr('wrong_pin') : tr('error'), 'err');
+      toast(tr('pin_saved'), 'ok');
+      if (alive()) { pbox.innerHTML = ''; c.render(); }
+    } }));
+    if (hasPin) pinRow.appendChild(makeButton(tr('clear_pin'), { cls: 'btn btn-ghost', onClick: async () => {
+      const res = await api.parental.setPin({ pin: '', currentPin: curPin.value });
+      if (!res || !res.ok) return toast(res && res.error === 'pin' ? tr('wrong_pin') : tr('error'), 'err');
+      toast(tr('pin_cleared'), 'ok');
+      if (alive()) { pbox.innerHTML = ''; c.render(); }
+    } }));
+    pbox.appendChild(pinRow);
+
     const rr = row();
-    if (r.lockSet) rr.appendChild(pinField);
+    if (hasPin) rr.appendChild(curField);
     rr.appendChild(makeButton(tr('save'), { cls: 'btn btn-primary', onClick: async () => {
-      const res = await api.parental.set({ enabled, useDefaults: useDef, keywords: csv(kw.value), lockedGroups: csv(gr.value), pin: pin.value });
-      pin.value = '';
-      if (!res || !res.ok) return toast(res && res.error === 'pin' ? tr('wrong_pin') : res && res.error === 'lock-required' ? tr('parental_lock_required') : tr('error'), 'err');
+      const res = await api.parental.set({ enabled, useDefaults: useDef, keywords: csv(kw.value), lockedGroups: csv(gr.value), pin: curPin.value });
+      curPin.value = '';
+      if (!res || !res.ok) {
+        return toast(res && res.error === 'pin' ? tr('wrong_pin') : res && res.error === 'pin-required' ? tr('pin_required') : tr('error'), 'err');
+      }
       toast(tr('saved'), 'ok'); if (c.reloadLibrary) await c.reloadLibrary();
       if (alive()) { pbox.innerHTML = ''; c.render(); }
     } }));

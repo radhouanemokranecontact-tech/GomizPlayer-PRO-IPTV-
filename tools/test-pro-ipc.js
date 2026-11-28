@@ -29,7 +29,7 @@ let failed = 0; const t = (n, c, x) => { console.log((c ? 'PASS ' : 'FAIL ') + n
   });
   const call = (ch, p, ev) => handlers[ch](ev || {}, p);
 
-  t('all pro channels registered', ['pro:status', 'pro:health:scan', 'pro:alternatives', 'pro:parental:set', 'pro:export:m3u', 'pro:sched:add', 'pro:catchup:url'].every((c) => handlers[c]));
+  t('all pro channels registered', ['pro:status', 'pro:health:scan', 'pro:alternatives', 'pro:parental:get', 'pro:parental:set', 'pro:parental:pin:set', 'pro:parental:pin:verify', 'pro:export:m3u', 'pro:sched:add', 'pro:catchup:url'].every((c) => handlers[c]));
   let threw = false; try { await call('pro:status', {}, { untrusted: true }); } catch (_) { threw = true; } t('untrusted sender rejected', threw);
 
   // alternatives (before any health data): hidden item excluded, parental off
@@ -57,18 +57,33 @@ let failed = 0; const t = (n, c, x) => { console.log((c ? 'PASS ' : 'FAIL ') + n
   t('dead item restored when off', caches['source-s1'].items.find((x) => x.key === 'b').hidden === false);
   t('base-hidden item stays hidden', caches['source-s1'].items.find((x) => x.key === 'd').hidden === true);
 
-  // parental + PIN
+  // parental + its OWN PIN (independent of the Settings app lock)
   let r = await call('pro:parental:set', { enabled: true, keywords: ['tf1'] });
-  t('parental enable without app-lock PIN is rejected', !r.ok && r.error === 'lock-required');
+  t('parental enable without a parental PIN is rejected', !r.ok && r.error === 'pin-required');
   t('rejected parental enable leaves filters unchanged', !settings.proParental.enabled && caches['source-s1'].items.find((x) => x.key === 'a').hidden === false);
-  settings.appLockHash = 'x'; pinOk = true;
+
+  // A set app lock must NOT satisfy or affect the parental PIN requirement.
+  settings.appLockHash = 'x';
+  r = await call('pro:parental:pin:set', { pin: '1234' });
+  t('parental PIN can be set without any app lock', r.ok && r.pinSet === true);
+  let v = await call('pro:parental:pin:verify', { pin: '1234' });
+  t('parental PIN verifies', v.ok === true);
+  v = await call('pro:parental:pin:verify', { pin: 'bad' });
+  t('wrong parental PIN rejected', v.ok === false);
+  r = await call('pro:parental:pin:set', { pin: '9999', currentPin: 'bad' });
+  t('changing parental PIN needs current PIN', !r.ok && r.error === 'pin' && settings.proParentalPinHash);
+
   r = await call('pro:parental:set', { enabled: true, keywords: ['tf1'], pin: '1234' });
-  t('parental enable with app-lock PIN succeeds', r.ok && settings.proParental.enabled);
+  t('parental enable with its own PIN succeeds', r.ok && settings.proParental.enabled);
   t('parental hides adult + keyword items', caches['source-s1'].items.find((x) => x.key === 'c').hidden === true && caches['source-s1'].items.find((x) => x.key === 'a').hidden === true);
-  pinOk = false;
-  r = await call('pro:parental:set', { enabled: false, pin: 'bad' }); t('disabling needs correct PIN', r.ok === false && r.error === 'pin' && settings.proParental.enabled === true);
-  pinOk = true; r = await call('pro:parental:set', { enabled: false, pin: '1234' });
+  r = await call('pro:parental:set', { enabled: false, pin: 'bad' });
+  t('disabling needs correct parental PIN', r.ok === false && r.error === 'pin' && settings.proParental.enabled === true);
+  r = await call('pro:parental:set', { enabled: false, pin: '1234' });
   t('correct PIN disables and restores', r.ok && caches['source-s1'].items.find((x) => x.key === 'c').hidden === false && caches['source-s1'].items.find((x) => x.key === 'd').hidden === true);
+
+  r = await call('pro:parental:pin:set', { pin: '', currentPin: '1234' });
+  t('parental PIN can be cleared with current PIN', r.ok && r.pinSet === false && !settings.proParentalPinHash);
+  settings.appLockHash = '';
 
   // export
   const exp = await call('pro:export:m3u', { sourceId: 'all', dedupe: true });
