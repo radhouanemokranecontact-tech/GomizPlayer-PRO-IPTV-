@@ -77,15 +77,22 @@ try { commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding:
 const statePath = path.join(root, 'docs', 'RELEASE_STATE.json');
 let previousState = null;
 try { previousState = JSON.parse(fs.readFileSync(statePath, 'utf8')); } catch (_) {}
+const storedState = (previousState && previousState.version === release.version) ? previousState : null;
+const sourceHash = hashSources();
 const stamp = {
-  generatedAt: (previousState && previousState.version === release.version) ? previousState.generatedAt : new Date().toISOString(),
+  generatedAt: storedState ? storedState.generatedAt : new Date().toISOString(),
   version: release.version,
   releaseDate: release.releaseDate,
   reviewed: release.reviewed,
-  commit,
-  sourceHash: hashSources(),
+  // In --check mode reuse the recorded commit so a new release commit itself
+  // does not invalidate the generated docs.
+  commit: checkOnly && storedState ? storedState.commit : commit,
+  sourceHash,
   tests: { total: results.total, passed: results.passed, failed: results.failed, file: 'docs/test-results.json' }
 };
+if (checkOnly && storedState && storedState.sourceHash !== sourceHash) {
+  fail(`source changed after release:sync (${storedState.sourceHash} != ${sourceHash}); run npm run release:sync`);
+}
 
 // --- report templates ----------------------------------------------------
 const bullet = (arr) => arr.map((x) => '- ' + x).join('\n');
@@ -101,7 +108,7 @@ function repairReport() {
 `| الاختبار | النتيجة | المدة |\n|---|---|---|\n${testRows()}\n\n` +
 `**المجموع:** ${results.passed}/${results.total} ناجح. وقت التوليد: ${stamp.generatedAt}.\n\n` +
 `## النشر\n\n- سير CI: ${release.runUrl || '—'}\n- الإصدار: ${release.releaseUrl || '—'}\n\n` +
-`## الارتباط بالمصدر\n\n- نسخة الحزمة: \`package.json\` = ${release.version}\n- ملف الإصدار: \`release.json\`\n- خصم المصدر: \`${commit || 'unknown'}\`\n- بصمة مجلد \`src/\`: \`${stamp.sourceHash}\`\n\n` +
+`## الارتباط بالمصدر\n\n- نسخة الحزمة: \`package.json\` = ${release.version}\n- ملف الإصدار: \`release.json\`\n- بصمة مجلد \`src/\`: \`${stamp.sourceHash}\`\n- حالة الإصدار وبيانات الاختبار: \`docs/RELEASE_STATE.json\` و\`docs/test-results.json\`\n\n` +
 `## English\n\n${release.summaryEn}\n\n### Features\n\n${bullet(release.featuresEn)}\n\n### Fixes\n\n${bullet(release.fixesEn)}\n\n` +
 `All ${results.total} declared tests passed. Previous reports are archived, never left as current.\n`;
 }

@@ -66,8 +66,8 @@
 
 - نسخة الحزمة: `package.json` = 2.0.5
 - ملف الإصدار: `release.json`
-- خصم المصدر: `309c50c5a0e863dd1d68e8a40f8d2c698aa19a6b`
 - بصمة مجلد `src/`: `f5001012fe07a5389e40130677139746bb82ef9a1c2b1ec02e9360c822d5c69e`
+- حالة الإصدار وبيانات الاختبار: `docs/RELEASE_STATE.json` و`docs/test-results.json`
 
 ## English
 
