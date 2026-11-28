@@ -129,3 +129,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'GitHub draft release creation failed' }
           gh release upload $env:RELEASE_TAG @assets
           if ($LASTEXITCODE -ne 0) { throw 'GitHub release asset upload failed' }
+
+      - name: Verify unified release timestamp
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          $expected = (node -p "require('./release.json').releasedAt").Trim()
+          $times = @(gh api "repos/${{ github.repository }}/releases/tags/$env:RELEASE_TAG" --jq '.assets[].created_at')
+          $unique = @($times | Sort-Object -Unique)
+          if ($unique.Count -ne 1) { throw "Assets have $($unique.Count) different upload timestamps: $($unique -join ', ')" }
+          if ($unique[0] -ne $expected) { throw "Asset timestamp $($unique[0]) does not match release.json releasedAt $expected" }
+          Write-Output "Unified release timestamp verified: $expected"
