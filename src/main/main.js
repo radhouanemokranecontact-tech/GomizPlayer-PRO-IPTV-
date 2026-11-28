@@ -278,7 +278,11 @@ async function applyProxySettings() {
 // PRO rebrand changed productName; keep reading/writing the ORIGINAL data folder so users keep sources,
 // favourites and settings after upgrading. (Skipped if the caller passes --user-data-dir.)
 try {
-  if (!app.commandLine.hasSwitch('user-data-dir')) app.setPath('userData', path.join(app.getPath('appData'), 'GomizPlayer IPTV'));
+  // Keep the legacy data folder for real users, but never override the
+  // isolated folder used by smoke/screenshot runs (otherwise stale PINs and
+  // filters from a previous run leak into the next one).
+  const smokeMode = SMOKE || SCREENSHOTS || STREAM_SMOKE || DOWNLOAD_SMOKE;
+  if (!smokeMode && !app.commandLine.hasSwitch('user-data-dir')) app.setPath('userData', path.join(app.getPath('appData'), 'GomizPlayer IPTV'));
 } catch (_) {}
 
 // VLC-like UA helps with many IPTV providers that whitelist known players.
@@ -1094,7 +1098,7 @@ function createWindow() {
                 const dup = await window.api.pro.dupes();
                 log.push('pro-dupes:' + (dup && typeof dup.live === 'number' ? 'ok' : 'FAIL'));
                 const par = await window.api.pro.parental.get();
-                log.push('pro-parental-get:' + (par && par.config && par.config.useDefaults === true ? 'ok' : 'FAIL'));
+                log.push('pro-parental-get:' + (par && par.config && par.config.useDefaults === true ? 'ok' : 'FAIL') + '(pinSet=' + (par && par.pinSet) + ')');
                 const past = await window.api.pro.sched.add({ name: 'x', url: 'http://example.com/a.ts', startAt: Date.now() - 7200000, endAt: Date.now() - 3600000 });
                 log.push('pro-sched-reject-past:' + (past && past.ok === false ? 'ok' : 'FAIL'));
                 const bad = await window.api.pro.sched.add({ name: 'x', url: 'file:///etc/passwd', startAt: Date.now() + 60000, endAt: Date.now() + 120000 });
@@ -1124,7 +1128,7 @@ function createWindow() {
                 if (healthSourceId) await window.api.sources.remove(healthSourceId);
                 // Parental controls use their own PIN, independent of the Settings app lock.
                 const pinSet = await window.api.pro.parental.setPin({ pin: '1234' });
-                log.push('parental-pin-set:' + (pinSet && pinSet.ok ? 'ok' : 'FAIL'));
+                log.push('parental-pin-set:' + (pinSet && pinSet.ok ? 'ok' : 'FAIL(' + ((pinSet && pinSet.error) || 'unknown') + ')'));
                 const exp = await window.api.pro.parental.set({ enabled: true, keywords: ['zzzz'], lockedGroups: [], pin: '1234' });
                 log.push('pro-parental-set:' + (exp && exp.ok ? 'ok' : 'FAIL(' + ((exp && exp.error) || 'unknown') + ')'));
                 const dis = await window.api.pro.parental.set({ enabled: false, keywords: [], lockedGroups: [], pin: '1234' });

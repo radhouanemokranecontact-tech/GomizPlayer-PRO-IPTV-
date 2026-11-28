@@ -32,7 +32,8 @@
     "test:ui": "node tools/ui-smoke.js . && node tools/ui-multiview.js .",
     "test:player-engine": "node tools/test-player-engine-contract.js",
     "test:multiview-overlay": "node tools/test-multiview-failed-overlay.js",
-    "test:bugfix": "node tools/test-bugfix-regressions.js"
+    "test:bugfix": "node tools/test-bugfix-regressions.js",
+    "test:navigation": "node tools/test-navigation.js ."
   },
   "dependencies": {
     "electron-updater": "6.8.11",

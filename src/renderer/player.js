@@ -66,6 +66,21 @@ function sameItem(a, b) {
   return a.url === b.url && (a.name || '') === (b.name || '');
 }
 
+/** Resolve live/movie/series once, including group/category-only playlists. */
+function resolvedKind(item) {
+  const raw = String((item && item.kind) || '').toLowerCase();
+  if (['live', 'livetv', 'movie', 'movies', 'vod', 'film', 'series', 'serie'].includes(raw)) {
+    return raw === 'livetv' ? 'live' : (['movies', 'vod', 'film'].includes(raw) ? 'movie' : (raw === 'serie' ? 'series' : raw));
+  }
+  try {
+    if (window.GomizClassification && typeof window.GomizClassification.classifyMedia === 'function') {
+      const k = window.GomizClassification.classifyMedia(item || {});
+      if (k === 'live' || k === 'movie' || k === 'series') return k;
+    }
+  } catch (_) {}
+  return raw || 'unknown';
+}
+
 /* "42 min left" / "1h 05m left" — used by the live programme strip. */
 function fmtLeft(ms) {
   const num = window.I18N && window.I18N.number ? window.I18N.number.bind(window.I18N) : String;
@@ -83,6 +98,7 @@ class Player {
   constructor(opts) {
     this.opts = opts || {};
     this.root = document.getElementById('playerRoot');
+    if (this.root && this.root.tabIndex < 0) this.root.tabIndex = -1; // focus target for keyboard shortcuts
     this.video = document.getElementById('video');
     this.layer = document.getElementById('subtitleLayer');
     this.loading = document.getElementById('playerLoading');
@@ -240,9 +256,11 @@ class Player {
     document.getElementById('playerBack').addEventListener('click', () => { if (!this.controlsBlocked('nav')) this.close(); else this.toggleLock(false); });
     document.getElementById('closeErrBtn').addEventListener('click', () => this.close());
     document.getElementById('retryBtn').addEventListener('click', () => this.reload());
-    document.getElementById('nextBtn2').addEventListener('click', () => this.playNext());
-    document.getElementById('prevCh').addEventListener('click', () => { if (!this.controlsBlocked()) this.playPrev(); });
-    document.getElementById('nextCh').addEventListener('click', () => { if (!this.controlsBlocked()) this.playNext(); });
+    // Blur navigation buttons after a click: otherwise a subsequent Enter/Space
+    // re-activates the focused button and skips yet another channel.
+    document.getElementById('nextBtn2').addEventListener('click', (e) => { e.currentTarget.blur(); this.playNext(); });
+    document.getElementById('prevCh').addEventListener('click', (e) => { if (!this.controlsBlocked()) { e.currentTarget.blur(); this.playPrev(); } });
+    document.getElementById('nextCh').addEventListener('click', (e) => { if (!this.controlsBlocked()) { e.currentTarget.blur(); this.playNext(); } });
     document.getElementById('statsBtn').addEventListener('click', (e) => { e.stopPropagation(); if (!this.controlsBlocked()) this.toggleStats(); });
     if (this.subsBtn2) this.subsBtn2.addEventListener('click', (e) => { e.stopPropagation(); if (this.controlsBlocked()) return; if (this.pop.hidden || this.popOwner !== 'subs') { this.showSubtitlePop(); } else { this.pop.hidden = true; this.popOwner = null; } });
     document.getElementById('drawerBtn').addEventListener('click', () => { if (!this.controlsBlocked()) this.toggleDrawer(); });
@@ -405,11 +423,23 @@ class Player {
     });
   }
 
+  /** Keep keyboard focus on the player after any navigation action. */
+  focusPlayer() {
+    try { this.root.focus({ preventScroll: true }); }
+    catch (_) { try { this.root.focus(); } catch (_) {} }
+  }
+
   onKey(e) {
     if (!this.open) return;
     const tag = (e.target && e.target.tagName) || '';
     if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
-      if (e.key === 'Escape') e.target.blur();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.target.blur();
+        if (!this.pop.hidden) { this.pop.hidden = true; this.popOwner = null; }
+        if (this.drawer && this.drawer.classList.contains('open')) this.toggleDrawer(false);
+        this.focusPlayer();
+      }
       return;
     }
     if (this.locked) {
@@ -435,11 +465,26 @@ class Player {
         break;
       case 'ArrowRight':
         e.preventDefault();
-        this.seekBy(this.seekStep);
+        if (e.ctrlKey || e.metaKey) this.playNext(); else this.seekBy(this.seekStep);
         break;
       case 'ArrowLeft':
         e.preventDefault();
-        this.seekBy(-this.seekStep);
+        if (e.ctrlKey || e.metaKey) this.playPrev(); else this.seekBy(-this.seekStep);
+        break;
+      case 'PageDown':
+        e.preventDefault();
+        this.playNext();
+        break;
+      case 'PageUp':
+        e.preventDefault();
+        this.playPrev();
+        break;
+      case 'Enter':
+        // Only when the player itself owns focus; never steal Enter from a button.
+        if (!e.target || e.target === document.body || e.target === this.root || e.target === this.video) {
+          e.preventDefault();
+          this.togglePlay();
+        }
         break;
       case 'ArrowUp':
         e.preventDefault();
@@ -450,23 +495,30 @@ class Player {
         this.setVolume(this.video.volume - 0.05);
         break;
       case 'm':
+        e.preventDefault();
         this.toggleMute();
         break;
       case 'f':
+        e.preventDefault();
         this.toggleFullscreen();
         break;
       case 's':
+        e.preventDefault();
         this.toggleStats();
         break;
       case 'd':
+        // Prevent the letter from being typed into the drawer search after we focus it.
+        e.preventDefault();
         this.toggleDrawer();
         break;
       case 'l':
       case 'L':
+        e.preventDefault();
         this.toggleLock(true);
         break;
       case 'g':
       case 'G':
+        e.preventDefault();
         this.goLive();
         break;
       case 'Escape':
@@ -492,6 +544,9 @@ class Player {
   /* ---------------- open / load ---------------- */
 
   openItem(item, context) {
+    // Remember the element that opened the player so close() can restore focus.
+    const before = document.activeElement;
+    this.returnFocusEl = (before && before !== document.body && !this.root.contains(before)) ? before : null;
     this.context = context || {};
     if (typeof this.context.getEpgFor === 'function') {
       const ctx = this.context;
@@ -518,7 +573,7 @@ class Player {
     this.updateAvatar(item);
     this.updateFavBtn();
     this.epgInfo = this.context.epg || null;
-    this.setLiveState(item.kind === 'live', true);
+    this.setLiveState(resolvedKind(item) === 'live', true);
     this.updateMeta();
     this.subName = '';
     this.subCues = [];
@@ -538,6 +593,9 @@ class Player {
     this.updateGoLiveButton();
     this.startTopWidget();
     this.syncRecordingState();
+    // Every channel change (buttons, drawer, keyboard, auto-next) lands with a
+    // predictable focus target instead of a stale/hidden button or BODY.
+    this.focusPlayer();
     if (this.opts.onOpen) this.opts.onOpen(item);
   }
 
@@ -708,7 +766,7 @@ class Player {
     this.updateQuality();
 
     const url = item.url;
-    this.setLiveState(item.kind === 'live', true);
+    this.setLiveState(resolvedKind(item) === 'live', true);
 
     const headers = normalizePlaybackHeaders(item.headers);
     const hasHeaders = Object.keys(headers).length > 0;
@@ -1116,24 +1174,31 @@ class Player {
 
   /* ---------------- navigation ---------------- */
 
-  playNext() {
+  /** Advance within the active playlist by direction (+1 / -1).
+   *  Use sameItem() (key with url+name fallback) and skip duplicate entries of
+   *  the current channel. If the current item is not in the playlist, do nothing
+   *  instead of jumping unpredictably to the first/last entry. */
+  stepChannel(direction) {
     const list = this.context?.playlist || [];
-    if (!list.length) return;
-    const idx = list.findIndex((x) => x.key && this.item && x.key === this.item.key);
-    const next = idx >= 0 ? list[(idx + 1) % list.length] : list[0];
-    if (next) this.openItem(next, { ...this.context, resume: next.position || 0 });
+    if (!list.length || !this.item) return;
+    const idx = list.findIndex((x) => sameItem(x, this.item));
+    if (idx < 0) return;
+    for (let step = 1; step <= list.length; step += 1) {
+      const pos = (idx + direction * step + list.length * step) % list.length;
+      const candidate = list[pos];
+      if (candidate && !sameItem(candidate, this.item)) {
+        this.openItem(candidate, { ...this.context, resume: candidate.position || 0 });
+        return;
+      }
+    }
   }
 
-  playPrev() {
-    const list = this.context?.playlist || [];
-    if (!list.length) return;
-    const idx = list.findIndex((x) => x.key && this.item && x.key === this.item.key);
-    const prev = idx > 0 ? list[idx - 1] : list[list.length - 1];
-    if (prev) this.openItem(prev, { ...this.context, resume: prev.position || 0 });
-  }
+  playNext() { this.stepChannel(1); }
+  playPrev() { this.stepChannel(-1); }
 
   toggleDrawer(force) {
     const next = force === undefined ? !this.drawer.classList.contains('open') : force;
+    const focusWasInside = this.drawer.contains(document.activeElement);
     if (this.drawerBtn) this.drawerBtn.classList.toggle('on', next);
     if (next) {
       this.poke();
@@ -1146,9 +1211,16 @@ class Player {
       this.drawer.classList.add('open');
       this.drawerSearch.placeholder = window.t('search_channels');
       this.renderDrawer(true);
+      // Move focus into the drawer so Tab/arrows act on the channel list.
+      try { this.drawerSearch.focus({ preventScroll: true }); } catch (_) {}
     } else {
       this.drawer.classList.remove('open');
       setTimeout(() => { if (!this.drawer.classList.contains('open')) this.drawer.hidden = true; }, 240);
+      if (focusWasInside && this.drawerBtn) {
+        try { this.drawerBtn.focus({ preventScroll: true }); } catch (_) {}
+      } else if (focusWasInside) {
+        this.focusPlayer();
+      }
     }
   }
 
@@ -1349,10 +1421,11 @@ class Player {
       btn.appendChild(badge);
     }
     btn.addEventListener('click', () => {
-      if (active) { this.toggleDrawer(false); return; }
+      if (active) { this.toggleDrawer(false); this.focusPlayer(); return; }
       const epg = this.context && typeof this.context.getEpgFor === 'function' ? this.context.getEpgFor(item) : null;
       this.openItem(item, { ...this.context, resume: item.position || 0, epg });
       this.toggleDrawer(false);
+      this.focusPlayer();
     });
     return btn;
   }
@@ -2517,6 +2590,11 @@ class Player {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     if (this.opts.onClose) this.opts.onClose(this.item);
     this.item = null;
+    const back = this.returnFocusEl;
+    this.returnFocusEl = null;
+    if (back && back.isConnected && document.contains(back)) {
+      try { back.focus({ preventScroll: true }); } catch (_) {}
+    }
   }
 
   setupGestures() {
