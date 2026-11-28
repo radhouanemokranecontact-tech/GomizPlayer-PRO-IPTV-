@@ -140,8 +140,10 @@ const generated = {
 };
 
 if (checkOnly) {
+  // Git checks out CRLF on Windows; normalize both sides before comparing.
+  const norm = (s) => s.replace(/\r\n/g, '\n');
   for (const [file, content] of Object.entries(generated)) {
-    if (!fs.existsSync(path.join(root, file)) || read(file) !== content) fail(`${file} is out of date; run npm run release:sync`);
+    if (!fs.existsSync(path.join(root, file)) || norm(read(file)) !== norm(content)) fail(`${file} is out of date; run npm run release:sync`);
   }
   console.log(`PASS release docs in sync for v${release.version} (${results.passed}/${results.total} tests)`);
   process.exit(0);
