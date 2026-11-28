@@ -161,7 +161,12 @@ contextBridge.exposeInMainWorld('api', {
     sched: {
       list: () => invoke('pro:sched:list'),
       add: (entry) => invoke('pro:sched:add', entry),
-      remove: (id) => invoke('pro:sched:remove', { id })
+      remove: (id) => invoke('pro:sched:remove', { id }),
+      onChanged: (cb) => {
+        const h = (_e, p) => cb(p);
+        ipcRenderer.on('pro:schedule:changed', h);
+        return () => ipcRenderer.removeListener('pro:schedule:changed', h);
+      }
     },
     parental: {
       get: () => invoke('pro:parental:get'),

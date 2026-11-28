@@ -139,7 +139,8 @@ function register(deps) {
     save: (all) => { store.data.schedules = all; store.save(); },
     startFn: (e) => startRecording({ url: e.url, headers: e.headers, name: e.name, key: e.key }, { noReplace: true }),
     stopFn: (e) => stopRecording(e.file),
-    isActive: (e) => isRecording(e.file)
+    isActive: (e) => isRecording(e.file),
+    onStateChange: (items) => sendWin('pro:schedule:changed', { items })
   });
   ipcMain.handle('pro:sched:list', guard(() => ({ items: sched.list() })));
   ipcMain.handle('pro:sched:add', guard(async (p) => {

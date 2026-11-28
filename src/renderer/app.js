@@ -4201,6 +4201,13 @@ function bindGlobal() {
     if (state.route === 'downloads') render();
   });
 
+  // A scheduled recording finishing in the main process must refresh the
+  // Recordings page immediately; previously it only appeared after a restart.
+  if (window.api.pro.sched.onChanged && !window.__novaSchedBound) {
+    window.__novaSchedBound = true;
+    window.api.pro.sched.onChanged(() => { refreshRecordings(); });
+  }
+
   window.addEventListener('error', (e) => {
     window.__novaLastError = e.message || String(e.error || 'script error');
     try {

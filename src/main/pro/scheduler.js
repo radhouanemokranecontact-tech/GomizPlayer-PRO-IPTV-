@@ -9,9 +9,10 @@ const MAX_ENTRIES = 200;
 const MAX_DURATION_MS = 12 * 3600 * 1000;
 
 class Scheduler {
-  constructor({ load, save, startFn, stopFn, isActive, now, tickMs }) {
+  constructor({ load, save, startFn, stopFn, isActive, now, tickMs, onStateChange }) {
     this.isActive = isActive || null;
     this.load = load; this.save = save; this.startFn = startFn; this.stopFn = stopFn;
+    this.onStateChange = onStateChange || null;
     this.now = now || (() => Date.now());
     this.tickMs = tickMs || 15000;
     this.timer = null; this.busy = false; this.activeId = null;
@@ -75,7 +76,14 @@ class Scheduler {
       const finished = all.filter((x) => x.state === 'done' || x.state === 'failed' || x.state === 'missed');
       let out = all;
       if (finished.length > 50) { const drop = new Set(finished.sort((a, b) => a.endAt - b.endAt).slice(0, finished.length - 50).map((x) => x.id)); out = all.filter((x) => !drop.has(x.id)); changed = true; }
-      if (changed) this.save(out);
+      if (changed) {
+        this.save(out);
+        // Notify the renderer so a finished scheduled recording appears in the
+        // Recordings list immediately, without an app restart or manual reload.
+        if (this.onStateChange) {
+          try { this.onStateChange(out); } catch (_) {}
+        }
+      }
     } finally { this.busy = false; }
   }
 
