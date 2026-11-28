@@ -4,6 +4,8 @@
   "releaseDate": "2026-11-28",
   "reviewed": "2026-11-28",
   "previousVersion": "2.0.4",
+  "releasePolicyAr": "إصدار مستقر واحد فقط هو v2.0.5 (Latest). الإصدارات v2.0.4 وv2.0.3 وv2.0.2 محفوظة كـ prerelease لأغراض السجل، ووسومها موجودة، لكنها ليست الإصدار الحالي ولا تُستخدم للتحديث.",
+  "releasePolicyEn": "Only one stable release exists: v2.0.5 (Latest). v2.0.4, v2.0.3 and v2.0.2 are kept as prerelease history with their tags intact; they are not the current release and are not used for updates.",
   "titleAr": "GomizPlayer PRO IPTV 2.0.5",
   "titleEn": "GomizPlayer PRO IPTV 2.0.5",
   "summaryAr": "إصدار Windows x64 يوحّد التاريخ والتقارير والاختبارات مع الشيفرة، ويصلح ترميز العربية، وإدارة تركيز التنقل، وظهور التسجيل المجدول فوراً، وتوسيط شريط التنقل.",

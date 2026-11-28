@@ -31,6 +31,8 @@ Authoritative update assets (GitHub Actions build, Ed25519-signed manifest):
 - GomizPlayer-PRO-IPTV-Setup-2.0.5.exe.blockmap
 - latest.yml
 
+Only one stable release exists: v2.0.5 (Latest). v2.0.4, v2.0.3 and v2.0.2 are kept as prerelease history with their tags intact; they are not the current release and are not used for updates.
+
 All public installer assets are produced and uploaded by one GitHub Actions run, so they share a single release timestamp. The local build was verified locally (Setup, Portable, blockmap and SHA-512 manifest match) but is not attached to the public release to avoid mixed upload times. Source code archives are generated automatically by GitHub and may show a later time; that timestamp is controlled by GitHub, not by the project.
 
 Windows executables are not Authenticode-signed; Windows may show an unknown-publisher warning. No real IPTV provider or DRM support was tested.
@@ -44,6 +46,8 @@ Windows executables are not Authenticode-signed; Windows may show an unknown-pub
 الوقت الموحّد للإصدار في كل الوثائق والأصول: 2026-11-28T12:30:16Z
 
 يوحّد هذا الإصدار رقم الإصدار والتاريخ والاختبارات وبصمة المصدر والتقارير في ملف واحد (`release.json`). مع كل إصدار جديد تُعاد توليد التقارير ويُؤرشف التقرير السابق، ويفشل CI إذا كانت التقارير قديمة أو إذا كان الترميز العربي مكسوراً.
+
+يوجد إصدار مستقر واحد فقط هو v2.0.5 (Latest). الإصدارات v2.0.4 وv2.0.3 وv2.0.2 محفوظة كسجل prerelease ووسومها موجودة، لكنها ليست الإصدار الحالي ولا تُستخدم للتحديث.
 
 تُنشئ أصول التثبيت العامة وتُرفع كلها في سير GitHub Actions واحد، لذلك تشترك في وقت إصدار واحد. البناء المحلي تحقّق منه محلياً (Setup وPortable وblockmap ومطابقة SHA-512) لكنه لا يُرفق بالإصدار العام حتى لا تختلط أوقات الرفع. أرشيفا الشيفرة ينشئهما GitHub تلقائياً وقد يظهران بوقت لاحق؛ هذا خارج تحكم المشروع.
 

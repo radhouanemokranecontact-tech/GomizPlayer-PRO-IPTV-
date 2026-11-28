@@ -112,7 +112,7 @@ function repairReport() {
 `## نتائج الاختبار (مصدر واحد: \`docs/test-results.json\`)\n\n` +
 `| الاختبار | النتيجة | المدة |\n|---|---|---|\n${testRows()}\n\n` +
 `**المجموع:** ${results.passed}/${results.total} ناجح. وقت التوليد: ${stamp.generatedAt}.\n\n` +
-`## النشر\n\n- سير CI: ${release.runUrl || '—'}\n- الإصدار: ${release.releaseUrl || '—'}\n\n` +
+`## النشر\n\n- سير CI: ${release.runUrl || '—'}\n- الإصدار: ${release.releaseUrl || '—'}\n- ${release.releasePolicyAr || ''}\n\n` +
 `## الارتباط بالمصدر\n\n- نسخة الحزمة: \`package.json\` = ${release.version}\n- ملف الإصدار: \`release.json\`\n- بصمة مجلد \`src/\`: \`${stamp.sourceHash}\`\n- حالة الإصدار وبيانات الاختبار: \`docs/RELEASE_STATE.json\` و\`docs/test-results.json\`\n\n` +
 `## English\n\n${release.summaryEn}\n\n### Features\n\n${bullet(release.featuresEn)}\n\n### Fixes\n\n${bullet(release.fixesEn)}\n\n` +
 `All ${results.total} declared tests passed. Previous reports are archived, never left as current.\n`;
@@ -125,7 +125,7 @@ function resultsReport() {
 `## النتائج\n\n| الاختبار | النتيجة | المدة |\n|---|---|---|\n${testRows()}\n\n` +
 `**النتيجة الإجمالية:** ${results.passed}/${results.total} PASS، و${results.failed} FAIL.\n\n` +
 `## البناء والأصول\n\n${bullet(release.artifactsAr)}\n\n` +
-`## النشر\n\n- سير CI: ${release.runUrl || '—'}\n- الإصدار: ${release.releaseUrl || '—'}\n\n` +
+`## النشر\n\n- سير CI: ${release.runUrl || '—'}\n- الإصدار: ${release.releaseUrl || '—'}\n- ${release.releasePolicyEn || ''}\n\n` +
 `## حدود التغطية\n\n- لم يُختبر بث مزوّد IPTV فعلي؛ لا يُدّعى دعم DRM.\n- ملفات Windows غير موقّعة Authenticode.\n- بيان \`dist/latest.yml\` المحلي غير موقّع؛ البيان الموقّع يُنتَج في GitHub Actions.\n\n` +
 `---\n\n# Version ${release.version} Test Results (English)\n\n` +
 `Generated from \`docs/test-results.json\` and \`release.json\`. Reviewed ${release.reviewed}.\n\n` +

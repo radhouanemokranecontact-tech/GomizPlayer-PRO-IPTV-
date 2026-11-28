@@ -61,6 +61,7 @@
 
 - سير CI: https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46144557795
 - الإصدار: https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.5
+- إصدار مستقر واحد فقط هو v2.0.5 (Latest). الإصدارات v2.0.4 وv2.0.3 وv2.0.2 محفوظة كـ prerelease لأغراض السجل، ووسومها موجودة، لكنها ليست الإصدار الحالي ولا تُستخدم للتحديث.
 
 ## الارتباط بالمصدر
 

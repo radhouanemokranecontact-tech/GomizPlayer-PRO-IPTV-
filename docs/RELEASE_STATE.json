@@ -4,7 +4,7 @@
   "releaseDate": "2026-11-28",
   "reviewed": "2026-11-28",
   "releasedAt": "2026-11-28T12:30:16Z",
-  "commit": "3088790f8a49a81bae31716118957257bfc4841f",
+  "commit": "cc94c083440f065502d9792b269c900764efc5a7",
   "sourceHash": "aec3ec87cd3ad5a59fb5d1d5f4f36c363a0bf605a47b8011f852850e6e7f82fa",
   "tests": {
     "total": 22,
