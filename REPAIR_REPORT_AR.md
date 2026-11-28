@@ -1,86 +1,98 @@
-# تقرير الإصلاح والتحقق — GomizPlayer PRO IPTV 2.0.4
+# تقرير الإصلاح والتحقق — GomizPlayer PRO IPTV 2.0.5
 
-**الحالة:** يخص هذا التقرير شيفرة `main` والإصدار 2.0.4. التقرير السابق محفوظ في `docs/archive/REPAIR_REPORT_AR-2.0.0.md`.
+**الإصدار:** 2.0.5 · **التاريخ:** 2026-11-28 · **الحالة:** هذا هو التقرير الحالي الوحيد. تُؤرشف تقارير الإصدارات السابقة في `docs/archive/reports/` ولا تُترك في الموقع الحالي.
 
-## ما أُصلح في هذه الجولة
+## ملخص
 
-أخطاء حقيقية تم العثور عليها بالتحليل ومراجعة الشيفرة وإصلاحها:
+إصدار Windows x64 يوحّد التاريخ والتقارير والاختبارات مع الشيفرة، ويصلح ترميز العربية، وإدارة تركيز التنقل، وظهور التسجيل المجدول فوراً، وتوسيط شريط التنقل.
 
-### فصل الرقابة الأبوية عن قفل التطبيق (طلب المستخدم 2.0.4)
-- كانت الرقابة الأبوية تتطلب رمز PIN الخاص بقفل التطبيق الموجود في الإعدادات، مع رسالة «عيّن رمز PIN لقفل التطبيق من الإعدادات قبل تفعيل الرقابة الأبوية».
-- أصبحت الرقابة الأبوية تمتلك **PIN خاصاً بها داخل PRO Tools**، مستقلاً تماماً عن قفل التطبيق: قنوات `pro:parental:pin:set` و`pro:parental:pin:verify`، وتخزين `proParentalPinHash` / `proParentalPinSalt` فقط (لا يُعرض الرمز أبداً).
-- تفعيل/إيقاف الرقابة ومنع التلاعب بها يتطلبان PIN الرقابة نفسها؛ قفل التطبيق لا يؤثر عليها ولا يُطلب لتفعيلها.
-- واجهة PRO Tools تعرض الآن حقل «الرمز الحالي» و«الرمز الجديد» وأزرار «عيّن رمزاً / تغيير الرمز / إزالة الرمز»، مع نص توضيحي بأنه مستقل عن إعدادات التطبيق.
+### الميزات
 
-### الأمان والمنطق في العملية الرئيسية
-- **تجاوز قفل التطبيق:** كان `settings:patch` يستطيع مسح `appLockHash` / `appLockPin` دون PIN، مما يلغي حماية الرقابة الأبوية. نُقل تغيير القفل إلى قناة `applock:set` المحمية بـ PIN، وأصبح `settings:patch` يتجاهل حقول القفل تماماً.
-- **تلوث النموذج الأولي (prototype pollution):** أسماء الملفات الشخصية `__proto__` / `prototype` / `constructor` كانت تكتب في `Object.prototype`. تُرفض هذه الأسماء الآن، ويُتحقق من الملكية الذاتية في `library()`، وتُستبعد مفاتيح Backup الخطرة.
-- **استيراد نسخة احتياطية ناقص:** عند فشل إعادة تشفير كلمات المرور كان يتم حفظ النسخة المستوردة وترك كلمات مرور بوضوح على القرص. أُضيفrollback كامل عند أي فشل.
-- **إدخال كلمة مرور Xtream:** كانت تُخزَّن كلمة فارغة ويُبلغ عن نجاح عندما يكون التشفير غير متاح؛ الآن يُطلب تشفير آمن وإلا يُعاد خطأ واضح.
-- **تسجيل التسجيلات (recording):** سباق بين مؤقت الفحص المبكر حدث `exit` كان يُبقي حالة التسجيل معلّقة؛ أُصلح بمراقب دائم من لحظة تشغيل ffmpeg.
-- **حماية التحديث:** وفاة العارض بعد بدء التطبيق لم تعد تُحسب كانهيار بدء تشغيل وبالتالي لا تظهر عروض rollback خاطئة.
-- **فتح التنزيلات:** الملفات في مجلد التنزيلات القديم أو المجلد المسجل في السجل أصبحت قابلة للفتح بعد تغيير `downloadsDir`.
-- **EPG بصيغة .gz:** طلب `Accept-Encoding: identity` يمنع فك الضغط مرتين عندما يرسل المزود `Content-Encoding: gzip`.
-- **ملخص فحص القنوات:** نتائج `ok: null` تُحسب الآن `unknown` وليس `dead`.
-- **تحديث مصدر محذوف:** يُعاد نتيجة منظّمة بدلاً من خطأ IPC غير معالج عند سباق الحذف مع التحديث.
+- مصادر M3U/M3U8 وXtream والرابط المباشر؛ بث مباشر وأفلام ومسلسلات ودليل ومفضلة وبحث وسجل.
+- تشغيل HLS وMPEG-TS/M2TS وMPEG-DASH المتوافق والوسائط الأصلية.
+- أدوات PRO: فحص القنوات، كشف التكرار، Catch-up، تسجيل مجدول، رقابة أبوية برمز PIN مستقل عن قفل التطبيق، وتصدير M3U.
+- Multiview حتى ست قنوات بأربعة تخطيطات وصوت للخانة النشطة والتحويل إلى مصدر بديل.
+- تنزيلات ونسخ احتياطية وتشخيص وواجهة عربية/إنجليزية.
+- نظام إصدار موحّد: release.json هو مصدر الحقيقة للتاريخ والإصدار والاختبارات والتقارير، مع فحص CI يمنع تقارير قديمة أو ترميزاً مكسوراً.
 
-### الواجهة والمشغّل
-- زر «إيقاف الترجمة» كان يُعيد تشغيل الترجم فوراً؛ أصبح هناك حالة «إيقاف صريح» (`sub: -1`) تتقدم على تفاصيل التفضيل.
-- فهرس مسارات الترجمة الأصلية كان خاطئاً عند وجود مسارات بيانات/فصول قبل الترجمة؛ تُستخدم الآن الفهارس العالمية.
-- مفتاح Escape كان يغلق المشغّل **وي**رجع للصفحة الخلفية في آن واحد؛ أصبح المشغّل يتفرد بالمفتاح أثناء فتحه.
-- اختيار نوع الوسيط (`stream_type` / `kind`) أصبح مقدّماً على تخمينات الاسم/المجموعة.
-- تمرير عنصر للمشغّل وMultiview يستخدم الآن النوع الفعّال `effectiveMediaKind()`.
-- نافذة الإدخال `promptModal` كانت تبقى بلا حل عند الإغلاق بـ X أو الخلفية؛ أصبحت تُحلّ بـ `null`.
-- تحديث أيقونة المفضلة فورياً كان يفشل للمفاتيح التي تحتوي رموزاً خاصة؛ تُقارن القيم الخام الآن.
+### الإصلاحات
 
-### الاختبارات والإصدار
-- `sign:manifest` كان يستدعي سكربت التوقيع بدون مفتاح، فيفشل دائماً؛ يقبل الآن مسار المفتاح أو المتغير `UPDATE_SIGNING_PRIVATE_KEY` مع حذف ملف المفتاح المؤقت.
-- سكربت الإصدار كان يستخدم الوسم `v2.0.2` كقيمة افتراضية لإصدار موجود؛ أُزيل الافتراضي وأُضيف فحص مبكر لوجود الإصدار.
-- اختبار الوسائط كان يمرّ بـ `SKIP` ويعود بنجاح في CI عند غياب ffmpeg؛ أصبح يفشل في CI ويبحث عن ffmpeg في PATH.
-- أُضيف اختبار انحدار جديد `npm run test:bugfix` إلى CI وسير الإصدار.
-- أُضيفت مجلدات أدوات التحليل العكسي إلى `.gitignore`، وأُصلح رابط Git الذي كان يحتوي رمزاً وهمياً.
-- أُصلح اختبار smoke: كان يفشل في خطوة الرقابة الأبوية بعد إضافة شرط PIN، ويُبلغ عن الفشل ثم يعود برمز خروج 0.
+- ترميز العربية في PRIVACY.md وTECHNICAL_GUIDE.md وSECURITY_FIXES.md وROADMAP.md كان مكسوراً على GitHub؛ أُصلح وضُبط فحص ترميز تلقائي.
+- توحيد تواريخ الإصدار وتقارير الاختبار وملفات الاختبارات مع رقم الحزمة؛ أُرشفت تقارير الإصدارات السابقة بدل تركها في الموقع الحالي.
+- تنقل القنوات: تركيز ثابت، منع إعادة تفعيل أزرار التنقل بـ Enter، اختصارات PageUp/PageDown وCtrl+الأسهم، وإدارة تركيز قائمة القنوات.
+- التسجيل المجدول: ظهور الملف في «التسجيلات» فور انتهائه دون إعادة تشغيل التطبيق.
+- توسيط العناصر الثلاثة عشر في الشريط الجانبي مع تثبيت الشعار ومحدد اللغة.
+- فصل الرقابة الأبوية عن قفل التطبيق عبر PIN مستقل داخل PRO Tools.
+- إصلاح تجاوز قفل التطبيق، تلوث النموذج الأولي، استيراد نسخة احتياطية ذري، وحفظ كلمة مرور Xtream.
+- إصلاح سباق التسجيل، عدّ أعطال التشغيل، مسارات التنزيل القديمة، فك ضغط EPG مرتين، وعدّ القنوات غير المعروفة.
+- إصلاح إيقاف الترجمات، فهارس الترجمة الأصلية، مفتاح Escape، أولوية نوع الوسيط، نافذة الإدخال، وأيقونة المفضلة.
+- إصلاح سكربت التوقيع، خطة الإصدار، اختبار الوسائط في CI، واختبار smoke.
 
-## نتائج التحقق المحلية (2026-11-28)
+## نتائج الاختبار (مصدر واحد: `docs/test-results.json`)
 
-- `npm run test:ssrf / classification / secrets:audit / backup / update-guard / manifest-signature / epg-stream / classification-parity / net-guard / hardening / pro / pro-ipc / media / player-engine / multiview-overlay / bugfix`: **كلها نجحت**.
-- `npm run test:secrets` (Electron): نجح.
-- `npm run test:ui` (Playwright UI Smoke + Multiview): نجح بلا أخطاء JavaScript.
-- `npm run smoke`: `SMOKE_RESULT PASS` ورمز الخروج 0.
-- `npm audit`: 0 ثغرات معلنة.
-- بناء Windows محلي 2.0.4: نجح (NSIS + Portable + blockmap)، وطابق `dist/latest.yml` الحجم وبصمة SHA-512 لملف Setup.
-- `verify:release-manifest` على `dist/latest.yml` المحلي يفشل متوقعاً لأن البيان المحلي غير موقّع؛ البيان الموقّع يُنشأ في CI بالسر `UPDATE_SIGNING_PRIVATE_KEY`.
+| الاختبار | النتيجة | المدة |
+|---|---|---|
+| test:ssrf | PASS | 501 ms |
+| test:classification | PASS | 428 ms |
+| test:secrets:audit | PASS | 426 ms |
+| test:backup | PASS | 427 ms |
+| test:update-guard | PASS | 418 ms |
+| test:manifest-signature | PASS | 455 ms |
+| test:epg-stream | PASS | 432 ms |
+| test:classification-parity | PASS | 414 ms |
+| test:net-guard | PASS | 463 ms |
+| test:hardening | PASS | 1090 ms |
+| test:pro | PASS | 1691 ms |
+| test:pro-ipc | PASS | 781 ms |
+| test:media | PASS | 1772 ms |
+| test:player-engine | PASS | 424 ms |
+| test:multiview-overlay | PASS | 418 ms |
+| test:bugfix | PASS | 425 ms |
+| test:secrets | PASS | 602 ms |
+| test:ui | PASS | 21097 ms |
+| smoke | PASS | 17802 ms |
+| test:navigation | PASS | 4012 ms |
+| test:scheduled-recording | PASS | 48497 ms |
+| test:sidebar | PASS | 1609 ms |
+
+**المجموع:** 22/22 ناجح. وقت التوليد: 2026-11-28T12:07:12.230Z.
 
 ## النشر
-- نجح [سير CI](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46133796401) و[سير الإصدار](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46133811286).
-- تحقّق من توقيع `latest.yml` المرفوع: `PASS release manifest signature v2.0.4`.
-- نُشر [إصدار v2.0.4](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.4) بـ 8 أصول: أصول CI الموقّعة المعتمدة للتحديث، ونسخ البناء المحلي موسومة بـ `-local` للتشخيص.
-- أُصلح إصدار v2.0.2 برفع أصوله ونشره.
 
-## حدود
-- لم يُختبر البث مع مزوّد IPTV حقيقي؛ لا يُدّعى دعم DRM.
-- ملفات Windows غير موقعة Authenticode.
+- سير CI: —
+- الإصدار: —
+
+## الارتباط بالمصدر
+
+- نسخة الحزمة: `package.json` = 2.0.5
+- ملف الإصدار: `release.json`
+- خصم المصدر: `309c50c5a0e863dd1d68e8a40f8d2c698aa19a6b`
+- بصمة مجلد `src/`: `f5001012fe07a5389e40130677139746bb82ef9a1c2b1ec02e9360c822d5c69e`
 
 ## English
 
-This report covers the current 2.0.4 source. It records real bugs found by analysis and code review, not only documentation changes.
+Windows x64 release that unifies dates, reports, tests and source metadata, repairs Arabic encoding, navigation focus, immediate scheduled-recording visibility and sidebar centering.
 
-### Parental PIN separated from the app lock (2.0.4 request)
-Parental controls no longer depend on the Settings app lock. PRO Tools now manages its own PIN through `pro:parental:pin:set` / `pro:parental:pin:verify`, storing only a scrypt hash and salt. Enabling, disabling and changing parental settings require that dedicated PIN; the Settings app lock is neither required nor usable for this purpose. The UI offers set/change/clear PIN controls and explains the separation.
+### Features
 
-### Fixed
-- App lock could be cleared through generic `settings:patch`, bypassing PIN-protected parental controls. Lock changes now go through `applock:set`, which verifies the current PIN.
-- `__proto__` / `prototype` / `constructor` profile names could pollute `Object.prototype`; reserved names are rejected and backups are sanitized.
-- Backup import could overwrite data and leave plaintext credentials when re-encryption failed; it now rolls back on any failure.
-- Xtream password re-entry no longer reports success when secure storage is unavailable.
-- Recording state could get stuck due to an `exit` event race; cleanup is now attached immediately.
-- Renderer crashes after startup no longer produce false rollback offers.
-- Completed downloads in legacy/custom directories remain openable after settings changes.
-- `.gz` EPG feeds are no longer decompressed twice.
-- Health summary counts `ok:null` probes as unknown, not dead.
-- Stale source refresh returns a structured result instead of an unhandled IPC error.
-- Subtitles "off" now sticks; native subtitle indices are global; Escape no longer double-navigates; explicit media metadata outranks name/group guessing; Multiview uses effective kind; `promptModal` resolves on close; favorite icon updates work for special characters.
-- `sign:manifest` is usable, the release workflow no longer defaults to an existing tag, the media test fails closed in CI, and a new `test:bugfix` regression group was added.
+- M3U/M3U8, Xtream and direct sources; live TV, movies, series, guide, favorites, search and history.
+- HLS, MPEG-TS/M2TS, compatible MPEG-DASH and native playback.
+- PRO tools: health scan, dedupe, catch-up, scheduled recording, parental controls with a PIN independent of the app lock, and M3U export.
+- Six-tile Multiview with four layouts, active-tile audio and source failover.
+- Downloads, backups, diagnostics and Arabic/English UI.
+- Unified release system: release.json is the single source of truth for version, date, tests and reports, with a CI gate against stale reports or broken encoding.
 
-### Verification
-All 16 Node regression groups, Electron secrets, Playwright UI smoke + Multiview, and the smoke test passed locally. `npm audit` reported zero vulnerabilities. Local Windows NSIS and portable builds succeeded and the unsigned local `latest.yml` matched the Setup hash/size. The signed manifest is produced by CI with the repository secret; the local unsigned manifest intentionally fails `verify:release-manifest`.
+### Fixes
+
+- Arabic text in PRIVACY.md, TECHNICAL_GUIDE.md, SECURITY_FIXES.md and ROADMAP.md was mojibake on GitHub; repaired with an automatic encoding gate.
+- Unified release dates, test reports, test files and package version; older reports are archived instead of left in the current location.
+- Channel navigation: stable focus, no Enter re-activation of nav buttons, PageUp/PageDown and Ctrl+arrow shortcuts, and drawer focus management.
+- Scheduled recording: completed files appear in Recordings immediately without an app restart.
+- Centered the 13 sidebar items while keeping the brand and language selector fixed.
+- Parental controls separated from the Settings app lock with a dedicated PRO Tools PIN.
+- Fixed app-lock bypass, prototype pollution, atomic backup import and Xtream password persistence.
+- Fixed recording race, rollback crash accounting, legacy download paths, double-gzip EPG and unknown channel counts.
+- Fixed subtitle-off persistence, native subtitle indices, Escape handling, media-kind priority, prompt modal and favorite icon updates.
+- Fixed manifest signing script, release workflow, CI media test and smoke test.
+
+All 22 declared tests passed. Previous reports are archived, never left as current.

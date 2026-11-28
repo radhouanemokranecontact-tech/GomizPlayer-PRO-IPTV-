@@ -1,0 +1,86 @@
+{
+  "version": "2.0.5",
+  "releaseDate": "2026-11-28",
+  "reviewed": "2026-11-28",
+  "previousVersion": "2.0.4",
+  "titleAr": "GomizPlayer PRO IPTV 2.0.5",
+  "titleEn": "GomizPlayer PRO IPTV 2.0.5",
+  "summaryAr": "إصدار Windows x64 يوحّد التاريخ والتقارير والاختبارات مع الشيفرة، ويصلح ترميز العربية، وإدارة تركيز التنقل، وظهور التسجيل المجدول فوراً، وتوسيط شريط التنقل.",
+  "summaryEn": "Windows x64 release that unifies dates, reports, tests and source metadata, repairs Arabic encoding, navigation focus, immediate scheduled-recording visibility and sidebar centering.",
+  "featuresAr": [
+    "مصادر M3U/M3U8 وXtream والرابط المباشر؛ بث مباشر وأفلام ومسلسلات ودليل ومفضلة وبحث وسجل.",
+    "تشغيل HLS وMPEG-TS/M2TS وMPEG-DASH المتوافق والوسائط الأصلية.",
+    "أدوات PRO: فحص القنوات، كشف التكرار، Catch-up، تسجيل مجدول، رقابة أبوية برمز PIN مستقل عن قفل التطبيق، وتصدير M3U.",
+    "Multiview حتى ست قنوات بأربعة تخطيطات وصوت للخانة النشطة والتحويل إلى مصدر بديل.",
+    "تنزيلات ونسخ احتياطية وتشخيص وواجهة عربية/إنجليزية.",
+    "نظام إصدار موحّد: release.json هو مصدر الحقيقة للتاريخ والإصدار والاختبارات والتقارير، مع فحص CI يمنع تقارير قديمة أو ترميزاً مكسوراً."
+  ],
+  "featuresEn": [
+    "M3U/M3U8, Xtream and direct sources; live TV, movies, series, guide, favorites, search and history.",
+    "HLS, MPEG-TS/M2TS, compatible MPEG-DASH and native playback.",
+    "PRO tools: health scan, dedupe, catch-up, scheduled recording, parental controls with a PIN independent of the app lock, and M3U export.",
+    "Six-tile Multiview with four layouts, active-tile audio and source failover.",
+    "Downloads, backups, diagnostics and Arabic/English UI.",
+    "Unified release system: release.json is the single source of truth for version, date, tests and reports, with a CI gate against stale reports or broken encoding."
+  ],
+  "fixesAr": [
+    "ترميز العربية في PRIVACY.md وTECHNICAL_GUIDE.md وSECURITY_FIXES.md وROADMAP.md كان مكسوراً على GitHub؛ أُصلح وضُبط فحص ترميز تلقائي.",
+    "توحيد تواريخ الإصدار وتقارير الاختبار وملفات الاختبارات مع رقم الحزمة؛ أُرشفت تقارير الإصدارات السابقة بدل تركها في الموقع الحالي.",
+    "تنقل القنوات: تركيز ثابت، منع إعادة تفعيل أزرار التنقل بـ Enter، اختصارات PageUp/PageDown وCtrl+الأسهم، وإدارة تركيز قائمة القنوات.",
+    "التسجيل المجدول: ظهور الملف في «التسجيلات» فور انتهائه دون إعادة تشغيل التطبيق.",
+    "توسيط العناصر الثلاثة عشر في الشريط الجانبي مع تثبيت الشعار ومحدد اللغة.",
+    "فصل الرقابة الأبوية عن قفل التطبيق عبر PIN مستقل داخل PRO Tools.",
+    "إصلاح تجاوز قفل التطبيق، تلوث النموذج الأولي، استيراد نسخة احتياطية ذري، وحفظ كلمة مرور Xtream.",
+    "إصلاح سباق التسجيل، عدّ أعطال التشغيل، مسارات التنزيل القديمة، فك ضغط EPG مرتين، وعدّ القنوات غير المعروفة.",
+    "إصلاح إيقاف الترجمات، فهارس الترجمة الأصلية، مفتاح Escape، أولوية نوع الوسيط، نافذة الإدخال، وأيقونة المفضلة.",
+    "إصلاح سكربت التوقيع، خطة الإصدار، اختبار الوسائط في CI، واختبار smoke."
+  ],
+  "fixesEn": [
+    "Arabic text in PRIVACY.md, TECHNICAL_GUIDE.md, SECURITY_FIXES.md and ROADMAP.md was mojibake on GitHub; repaired with an automatic encoding gate.",
+    "Unified release dates, test reports, test files and package version; older reports are archived instead of left in the current location.",
+    "Channel navigation: stable focus, no Enter re-activation of nav buttons, PageUp/PageDown and Ctrl+arrow shortcuts, and drawer focus management.",
+    "Scheduled recording: completed files appear in Recordings immediately without an app restart.",
+    "Centered the 13 sidebar items while keeping the brand and language selector fixed.",
+    "Parental controls separated from the Settings app lock with a dedicated PRO Tools PIN.",
+    "Fixed app-lock bypass, prototype pollution, atomic backup import and Xtream password persistence.",
+    "Fixed recording race, rollback crash accounting, legacy download paths, double-gzip EPG and unknown channel counts.",
+    "Fixed subtitle-off persistence, native subtitle indices, Escape handling, media-kind priority, prompt modal and favorite icon updates.",
+    "Fixed manifest signing script, release workflow, CI media test and smoke test."
+  ],
+  "tests": [
+    "test:ssrf",
+    "test:classification",
+    "test:secrets:audit",
+    "test:backup",
+    "test:update-guard",
+    "test:manifest-signature",
+    "test:epg-stream",
+    "test:classification-parity",
+    "test:net-guard",
+    "test:hardening",
+    "test:pro",
+    "test:pro-ipc",
+    "test:media",
+    "test:player-engine",
+    "test:multiview-overlay",
+    "test:bugfix",
+    "test:secrets",
+    "test:ui",
+    "smoke",
+    "test:navigation",
+    "test:scheduled-recording",
+    "test:sidebar"
+  ],
+  "artifactsAr": [
+    "GomizPlayer-PRO-IPTV-Setup-2.0.5.exe",
+    "GomizPlayer-PRO-IPTV-Portable-2.0.5.exe",
+    "GomizPlayer-PRO-IPTV-Setup-2.0.5.exe.blockmap",
+    "latest.yml (موقّع Ed25519 من CI)"
+  ],
+  "artifactsEn": [
+    "GomizPlayer-PRO-IPTV-Setup-2.0.5.exe",
+    "GomizPlayer-PRO-IPTV-Portable-2.0.5.exe",
+    "GomizPlayer-PRO-IPTV-Setup-2.0.5.exe.blockmap",
+    "latest.yml (CI Ed25519-signed)"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "name": "gomizplayer-pro-iptv",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "GomizPlayer PRO IPTV — IPTV/VOD player with channel health scan, auto-failover, catch-up, scheduled recording and parental controls (Electron).",
   "main": "src/main/main.js",
   "author": "GomizPlayer",
@@ -35,7 +35,11 @@
     "test:bugfix": "node tools/test-bugfix-regressions.js",
     "test:navigation": "node tools/test-navigation.js .",
     "test:scheduled-recording": "node tools/test-scheduled-recording.js",
-    "test:sidebar": "node tools/ui-sidebar-check.js"
+    "test:sidebar": "node tools/ui-sidebar-check.js",
+    "test:all": "node scripts/run-all-tests.js",
+    "release:sync": "node scripts/sync-release-docs.js",
+    "release:check": "node scripts/sync-release-docs.js --check",
+    "release:publish": "node scripts/github-release.js"
   },
   "dependencies": {
     "electron-updater": "6.8.11",

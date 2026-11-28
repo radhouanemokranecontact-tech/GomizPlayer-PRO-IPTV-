@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-11-28T12:07:12.230Z",
+  "version": "2.0.5",
+  "releaseDate": "2026-11-28",
+  "reviewed": "2026-11-28",
+  "commit": "309c50c5a0e863dd1d68e8a40f8d2c698aa19a6b",
+  "sourceHash": "f5001012fe07a5389e40130677139746bb82ef9a1c2b1ec02e9360c822d5c69e",
+  "tests": {
+    "total": 22,
+    "passed": 22,
+    "failed": 0,
+    "file": "docs/test-results.json"
+  }
+}

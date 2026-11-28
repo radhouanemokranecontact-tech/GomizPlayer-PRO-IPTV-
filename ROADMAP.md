@@ -1,31 +1,31 @@
-# GomizPlayer PRO IPTV â€” Ø®Ø§Ø±Ø·Ø© Ø§Ù„Ø·Ø±ÙŠÙ‚ | Roadmap
+# GomizPlayer PRO IPTV — خارطة الطريق | Roadmap
 
-**Ù†Ø·Ø§Ù‚ Ù‡Ø°Ø§ Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹ / Repository scope:** ØªØ·Ø¨ÙŠÙ‚ Windows ÙÙ‚Ø· Â· **Ù†Ø³Ø®Ø© Ø§Ù„Ù…ØµØ¯Ø± / Source version:** 2.0.4 Â· **Ø¢Ø®Ø± Ù…Ø±Ø§Ø¬Ø¹Ø© / Reviewed:** 2026-11-27
+**نطاق هذا المستودع / Repository scope:** تطبيق Windows فقط · **نسخة المصدر / Source version:** 2.0.5 · **آخر مراجعة / Reviewed:** 2026-11-28
 
-## Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©
+## العربية
 
-### Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø­Ø§Ù„ÙŠØ©
-Ø§Ù„Ø´ÙŠÙØ±Ø© Ø§Ù„Ø­Ø§Ù„ÙŠØ© ÙÙŠ `main` Ù‡ÙŠ 2.0.4. Ø§ÙƒØªÙ…Ù„ Ù†Ù‚Ù„ Ø§Ù„Ù…ØµØ¯Ø± ÙˆØ§Ù„ØªÙˆØ«ÙŠÙ‚ØŒ ÙˆØ§Ø¬ØªØ§Ø²Øª Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª CI ÙˆØ§Ù„Ø¨Ù†Ø§Ø¡ ÙˆØ§Ù„ØªÙˆÙ‚ÙŠØ¹ØŒ ÙˆÙ†ÙØ´Ø± [Ø¥ØµØ¯Ø§Ø± v2.0.4 Ù„Ù„Ø¹Ø§Ù…Ø©](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.4) Ø¨Ø£ØµÙˆÙ„Ù‡ Ø§Ù„Ø£Ø±Ø¨Ø¹Ø©.
+### الحالة الحالية
+الشيفرة الحالية في `main` هي 2.0.5. اكتمل نقل المصدر والتوثيق، واجتازت اختبارات CI والبناء والتوقيع، ونُشر [إصدار v2.0.5 للعامة](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.5) بأصوله الأربعة.
 
-### Ø§Ù„Ù…Ù†Ø¬Ø² ÙÙŠ Ø§Ù„ØªØ·Ø¨ÙŠÙ‚
-- Ø¥Ø¯Ø§Ø±Ø© Ù…ØµØ§Ø¯Ø± M3U/M3U8 ÙˆXtream ÙˆØ±ÙˆØ§Ø¨Ø· Ø§Ù„Ø¨Ø«.
-- Live TV ÙˆVOD ÙˆØ¯Ù„ÙŠÙ„ Ø§Ù„Ø¨Ø±Ø§Ù…Ø¬ ÙˆØ§Ù„Ù…ÙØ¶Ù„Ø© ÙˆØ§Ù„Ø¨Ø­Ø« ÙˆØ§Ù„Ø³Ø¬Ù„.
-- ØªØ´ØºÙŠÙ„ HLS ÙˆMPEG-TS/M2TS ÙˆMPEG-DASH Ø§Ù„Ù…ØªÙˆØ§ÙÙ‚ ÙˆØ§Ù„ÙˆØ³Ø§Ø¦Ø· Ø§Ù„Ø£ØµÙ„ÙŠØ© Ù„Ù„Ù…ØªØµÙØ­.
-- Ø£Ø¯ÙˆØ§Øª PRO: ÙØ­Øµ ØµØ­Ø© Ø§Ù„Ù‚Ù†ÙˆØ§ØªØŒ failover Ø¹Ù†Ø¯ ØªÙˆÙØ± Ø¨Ø¯ÙŠÙ„ØŒ ÙƒØ´Ù Ø§Ù„ØªÙƒØ±Ø§Ø±ØŒ catch-up Ø§Ù„Ù…Ø¹ØªÙ…Ø¯ Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø²ÙˆØ¯ØŒ ØªØ³Ø¬ÙŠÙ„ Ù…Ø¬Ø¯ÙˆÙ„ØŒ Ø±Ù‚Ø§Ø¨Ø© Ø£Ø¨ÙˆÙŠØ© ÙˆØªØµØ¯ÙŠØ± M3U.
-- Multiview Ø­ØªÙ‰ Ø³Øª Ø®Ø§Ù†Ø§Øª Ø¨Ø£Ø±Ø¨Ø¹Ø© ØªØ®Ø·ÙŠØ·Ø§ØªØŒ Ù…Ø¹ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ØµÙˆØª ÙˆØ­ÙØ¸ Ø§Ù„ØªØ´ÙƒÙŠÙ„Ø©.
-- ØªÙ†Ø²ÙŠÙ„Ø§Øª ÙˆØ¥Ø¹Ø¯Ø§Ø¯Ø§Øª ÙˆÙ†Ø³Ø® Ø§Ø­ØªÙŠØ§Ø·ÙŠØ© ÙˆØªØ´Ø®ÙŠØµ Ù…Ø­Ù„ÙŠ ÙˆÙˆØ§Ø¬Ù‡Ø© EN/AR.
+### المنجز في التطبيق
+- إدارة مصادر M3U/M3U8 وXtream وروابط البث.
+- Live TV وVOD ودليل البرامج والمفضلة والبحث والسجل.
+- تشغيل HLS وMPEG-TS/M2TS وMPEG-DASH المتوافق والوسائط الأصلية للمتصفح.
+- أدوات PRO: فحص صحة القنوات، failover عند توفر بديل، كشف التكرار، catch-up المعتمد على المزود، تسجيل مجدول، رقابة أبوية وتصدير M3U.
+- Multiview حتى ست خانات بأربعة تخطيطات، مع اختيار الصوت وحفظ التشكيلة.
+- تنزيلات وإعدادات ونسخ احتياطية وتشخيص محلي وواجهة EN/AR.
 
-### Ø§Ù„Ø¹Ù…Ù„ Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ
-1. Ø§Ø®ØªØ¨Ø§Ø± MPEG-DASH Ù…Ø¹ Ù…ØµØ§Ø¯Ø± Ø­Ù‚ÙŠÙ‚ÙŠØ©Ø› Ù„Ø§ ÙŠÙØ¹Ù„Ù† Ø¯Ø¹Ù… DRM.
-2. Ø¥Ø¬Ø±Ø§Ø¡ ØªØ­Ù‚Ù‚ Ù…Ù…ØªØ¯ Ø¹Ù„Ù‰ Ø£Ø¬Ù‡Ø²Ø© Windows ÙˆÙ…ØµØ§Ø¯Ø± IPTV Ù…ØªØ¹Ø¯Ø¯Ø©ØŒ Ø®Ø§ØµØ© ØªÙˆØ§ÙÙ‚ Ø§Ù„ØªØ±Ù…ÙŠØ² ÙˆCORS ÙˆØ§Ø³ØªÙ‡Ù„Ø§Ùƒ Ø§Ù„Ø°Ø§ÙƒØ±Ø© ÙÙŠ Multiview.
-3. Ø£ÙŠ Ø¯Ø¹Ù… Stalker Ø£Ùˆ Chromecast/DLNA Ø£Ùˆ Ù‚Ù†ÙˆØ§Øª beta ÙŠØ­ØªØ§Ø¬ ØªØ­Ø¯ÙŠØ¯ Ù†Ø·Ø§Ù‚ ÙˆØ§Ø®ØªØ¨Ø§Ø±Ø§Øª Ø£Ø¬Ù‡Ø²Ø© ÙˆØ¨Ù†ÙŠØ© Ù†Ø´Ø± Ù‚Ø¨Ù„ Ø§Ø¹ØªÙ…Ø§Ø¯Ù‡ Ø¶Ù…Ù† Ø®Ø§Ø±Ø·Ø© Ø¥ØµØ¯Ø§Ø±.
+### العمل المتبقي
+1. اختبار MPEG-DASH مع مصادر حقيقية؛ لا يُعلن دعم DRM.
+2. إجراء تحقق ممتد على أجهزة Windows ومصادر IPTV متعددة، خاصة توافق الترميز وCORS واستهلاك الذاكرة في Multiview.
+3. أي دعم Stalker أو Chromecast/DLNA أو قنوات beta يحتاج تحديد نطاق واختبارات أجهزة وبنية نشر قبل اعتماده ضمن خارطة إصدار.
 
-ØªØ·Ø¨ÙŠÙ‚ Android TV Ø®Ø§Ø±Ø¬ Ù†Ø·Ø§Ù‚ Ù‡Ø°Ø§ Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹Ø› Ù„Ø§ ØªØ³Ø±Ø¯ Ù‡Ø°Ù‡ Ø§Ù„Ø®Ø§Ø±Ø·Ø© Ø£Ø±Ù‚Ø§Ù… Ø¥ØµØ¯Ø§Ø±Ø§Øª Android Ø£Ùˆ Ø­Ø§Ù„ØªÙ‡.
+تطبيق Android TV خارج نطاق هذا المستودع؛ لا تسرد هذه الخارطة أرقام إصدارات Android أو حالته.
 
 ## English
 
 ### Current status
-The source on `main` is version 2.0.4. Source and documentation have been moved; release CI regressions, Windows packaging, and manifest signing passed. [Release v2.0.4 is publicly available](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.4) with all four assets.
+The source on `main` is version 2.0.5. Source and documentation have been moved; release CI regressions, Windows packaging, and manifest signing passed. [Release v2.0.5 is publicly available](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.5) with all four assets.
 
 ### Implemented in the app
 - M3U/M3U8, Xtream, and direct stream source management.

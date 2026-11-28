@@ -1,0 +1,344 @@
+{
+  "version": "2.0.5",
+  "generatedAt": "2026-11-28T12:06:56.191Z",
+  "total": 22,
+  "passed": 22,
+  "failed": 0,
+  "results": [
+    {
+      "name": "test:ssrf",
+      "ok": true,
+      "durationMs": 501,
+      "tail": [
+        "BLOCKED http://100.64.0.1/",
+        "BLOCKED http://metadata.google.internal/",
+        "BLOCKED http://metadata.google.internal./",
+        "BLOCKED http://metadata.svc/",
+        "ALLOWED https://example.com",
+        "SSRF_TEST_OK",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:ssrf",
+        "npm notice run node tools/test-ssrf.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:classification",
+      "ok": true,
+      "durationMs": 428,
+      "tail": [
+        "PASS unknown-category-ambiguous-stream",
+        "PASS unknown-category-vod-ext-defaults-movie",
+        "PASS stored-explicit-kind-movie",
+        "PASS stored-explicit-kind-series",
+        "PASS demo-playlist-classification",
+        "ALL CLASSIFICATION TESTS PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:classification",
+        "npm notice run node tools/test-classification.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:secrets:audit",
+      "ok": true,
+      "durationMs": 426,
+      "tail": [
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:secrets:audit",
+        "npm notice run node tools/test-secrets-audit.js",
+        "[security] encrypt failed encrypt-failed",
+        "[security] async decrypt failed, trying sync fallback bad ciphertext",
+        "[security] using sync decrypt fallback for legacy encrypted data",
+        "[security] sync decrypt fallback failed bad ciphertext",
+        "[security] encrypt failed encrypt-failed",
+        "[security] secure storage unavailable; existing Xtream credentials remain in legacy storage until secure encryption is available"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:backup",
+      "ok": true,
+      "durationMs": 427,
+      "tail": [
+        "PASS backupNow creates a listed backup",
+        "PASS restoreBackup succeeds on a valid backup",
+        "PASS restoreBackup rejects path traversal",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:backup",
+        "npm notice run node tools/test-backup.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:update-guard",
+      "ok": true,
+      "durationMs": 418,
+      "tail": [
+        "PASS noteStartup records version",
+        "PASS snapshotBeforeUpdate creates a file",
+        "PASS noteHealthy resets crash counter",
+        "PASS rollback offered after 2 crashes + version change",
+        "PASS dismiss clears rollback state",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:update-guard",
+        "npm notice run node tools/test-update-guard.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:manifest-signature",
+      "ok": true,
+      "durationMs": 455,
+      "tail": [
+        "PASS binding rejects replay/rollback (not newer)",
+        "PASS binding rejects missing update info",
+        "PASS semver compare",
+        "PASS verify rejects expired manifest",
+        "PASS verify accepts unexpired manifest",
+        "PASS validUntil is covered by the signature",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:manifest-signature",
+        "npm notice run node tools/test-manifest-signature.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:epg-stream",
+      "ok": true,
+      "durationMs": 432,
+      "tail": [
+        "PASS epg-stream-parse",
+        "PASS epg-stream-5000 (14ms)",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:epg-stream",
+        "npm notice run node tools/test-epg-stream.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:classification-parity",
+      "ok": true,
+      "durationMs": 414,
+      "tail": [
+        "PASS vod-file-mkv",
+        "PASS hls-playlist-with-live-name",
+        "PASS xtream-live-param",
+        "PASS xtream-vod-param",
+        "PASS empty-unknown",
+        "PARITY_JS_RESULT 9/9",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:classification-parity",
+        "npm notice run node tools/test-classification-parity.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:net-guard",
+      "ok": true,
+      "durationMs": 463,
+      "tail": [
+        "PASS guard=all blocks loopback",
+        "PASS guard=all blocks *.localhost",
+        "PASS guard=none follows redirect",
+        "PASS redirect loop capped",
+        "PASS gzip body capped",
+        "ALL NET-GUARD TESTS PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:net-guard",
+        "npm notice run node tools/test-net-guard.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:hardening",
+      "ok": true,
+      "durationMs": 1090,
+      "tail": [
+        "PASS cachePath contains \"/../../../etc/passwd\"",
+        "PASS cachePath contains \"..\\\\..\\\\win\"",
+        "PASS cachePath contains \"a/../../b\"",
+        "PASS remote playlist drops file/javascript/data URLs",
+        "PASS local playlist keeps file URLs but drops script/data",
+        "ALL HARDENING TESTS PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:hardening",
+        "npm notice run node tools/test-hardening.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:pro",
+      "ok": true,
+      "durationMs": 1691,
+      "tail": [
+        "PASS late start inside window",
+        "PASS remove stops active",
+        "PASS early exit marks failed and frees slot",
+        "PASS next entry can start after early exit",
+        "PASS recover after restart re-queues",
+        "ALL PRO TESTS PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:pro",
+        "npm notice run node tools/test-pro.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:pro-ipc",
+      "ok": true,
+      "durationMs": 781,
+      "tail": [
+        "PASS catchup url via ipc",
+        "PASS catchup rejects non-http result",
+        "PASS schedule add",
+        "PASS schedule rejects file: url",
+        "PASS schedule remove",
+        "ALL PRO IPC TESTS PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:pro-ipc",
+        "npm notice run node tools/test-pro-ipc.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:media",
+      "ok": true,
+      "durationMs": 1772,
+      "tail": [
+        "PASS header injection is neutralised",
+        "PASS output mp4 has video+audio",
+        "PASS hostile playlist cannot read local files",
+        "PASS recording args produce a TS file",
+        "PASS recording sent both headers",
+        "ALL MEDIA INTEGRATION TESTS PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:media",
+        "npm notice run node tools/test-media-integration.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:player-engine",
+      "ok": true,
+      "durationMs": 424,
+      "tail": [
+        "PASS Multiview attaches HLS media before loading its source",
+        "PASS Quick info reports DASH engine distinctly",
+        "PASS Playback statistics report DASH engine distinctly",
+        "PASS Multiview MPEG-TS feature detection is exception-safe",
+        "PASS Multiview registers MPEG-TS error listener before attaching media",
+        "ALL PLAYER ENGINE CONTRACT TESTS PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:player-engine",
+        "npm notice run node tools/test-player-engine-contract.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:multiview-overlay",
+      "ok": true,
+      "durationMs": 418,
+      "tail": [
+        "PASS failed-stream actions remain above the error overlay",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:multiview-overlay",
+        "npm notice run node tools/test-multiview-failed-overlay.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:bugfix",
+      "ok": true,
+      "durationMs": 425,
+      "tail": [
+        "PASS explicit stream_type series beats Movies group and Episode name",
+        "PASS stored kind live beats movie group",
+        "PASS createProfile rejects reserved prototype keys",
+        "PASS library(__proto__) returns the default profile",
+        "PASS importBackup ignores __proto__ library key",
+        "ALL BUGFIX REGRESSIONS PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:bugfix",
+        "npm notice run node tools/test-bugfix-regressions.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:secrets",
+      "ok": true,
+      "durationMs": 602,
+      "tail": [
+        "PASS: no smoke-epg.xml created in real userData (existedBefore=false, existsAfter=false)",
+        "TEST_SECRETS_RESULT PASS",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:secrets",
+        "npm notice run node node_modules/electron/cli.js tools/test-secrets.js",
+        "[security] async decrypt failed, trying sync fallback Error while decrypting the ciphertext provided to safeStorage.decryptStringAsync.",
+        "[security] using sync decrypt fallback for legacy encrypted data",
+        "(electron) 'safeStorage.decryptString' is deprecated and will be removed. Please use 'safeStorage.decryptStringAsync' instead.",
+        "[security] sync decrypt fallback failed Error while decrypting the ciphertext provided to safeStorage.decryptString. Ciphertext does not appear to be encrypted."
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:ui",
+      "ok": true,
+      "durationMs": 21097,
+      "tail": [
+        " \"channels survive shrinking the layout\": true,",
+        " \"arabic RTL + labels\": true,",
+        " \"no xss executed\": true",
+        "}",
+        "errors: none",
+        "MULTIVIEW UI PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:ui",
+        "npm notice run node tools/ui-smoke.js . && node tools/ui-multiview.js ."
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "smoke",
+      "ok": true,
+      "durationMs": 17802,
+      "tail": [
+        "SMOKE_RESULT PASS ",
+        "SMOKE_DETAIL source-add:ok | epg-add:12 | items:15 | home:772 | movies:142 | series:102 | favorites:102 | downloads:13 | sources:59 | settings:159 | epg-labels:1 | player-live-ui:ok | player-live-epg:ok | drawer-browser:100/3/ok | drawer-group:70/ok | drawer-dedupe:ok | drawer-search:11/ok | drawer-more:100>141/ok | player-drawer-current:ok | player-vod-ui:ok | live-open-direct:ok | live-reopen:ok | live-drawer-close:ok | live-close-home:ok | nav-clicks:ok | rtl-row:ltr/2/ok | layout-rows:4 | layout-reorder:ok | layout-density:ok | layout-limit:ok | layout-card-w:132/196 | layout-hide:ok | layout-drag:ok | subtitles-rows:6 | fav-ui-click:0->1/on | fav-view-count:15 | player-open:yes | player-error:no | player-controls:24 | subtitle-api:true | player-closed:yes | player-live:no | audio-hidden:yes | fav-added:1 | fav-cleared:0 | pro-page:ok | pro-status:ok | pro-dupes:ok | pro-parental-get:ok(pinSet=false) | pro-sched-reject-past:ok | pro-sched-reject-file-url:ok | pro-sched-add-list:ok | pro-sched-remove:ok | pro-catchup:ok | pro-health-scan:ok(0/0) | pro-health-summary:ok | parental-pin-set:ok | pro-parental-set:ok | pro-parental-clear:ok | parental-pin-clear:ok | search-results:2",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 smoke",
+        "npm notice run electron . --smoke-test"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:navigation",
+      "ok": true,
+      "durationMs": 4012,
+      "tail": [
+        "PASS clicking drawer button focuses search",
+        "PASS picking a channel closes drawer and keeps focus on player",
+        "PASS no playlist: navigation is a no-op, not a random jump",
+        "PASS visible keyboard focus styling exists",
+        "PASS no JavaScript errors",
+        "ALL NAVIGATION TESTS PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:navigation",
+        "npm notice run node tools/test-navigation.js ."
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:scheduled-recording",
+      "ok": true,
+      "durationMs": 48497,
+      "tail": [
+        "PASS scheduler marks entry done",
+        "PASS file exists in recording folder without restart",
+        "PASS Recordings page shows the new file without restart",
+        "PASS recording stopped at end time",
+        "PASS no app errors",
+        "ALL SCHEDULED RECORDING TESTS PASSED",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:scheduled-recording",
+        "npm notice run node tools/test-scheduled-recording.js"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "test:sidebar",
+      "ok": true,
+      "durationMs": 1609,
+      "tail": [
+        "  \"navBottom\": 721.5,",
+        "  \"sidebarTop\": 0,",
+        "  \"sidebarBottom\": 881",
+        "}",
+        "screenshot: C:\\Users\\RADHOU~1\\AppData\\Local\\Temp\\gomiz-sidebar-SS0XAr\\sidebar.png",
+        "SIDEBAR_LAYOUT PASS",
+        "npm notice run gomizplayer-pro-iptv@2.0.5 test:sidebar",
+        "npm notice run node tools/ui-sidebar-check.js"
+      ],
+      "exitCode": 0
+    }
+  ]
+}
