@@ -63,7 +63,12 @@ let root = null, ctxRef = null, slots = [], tiles = [], layout = DEFAULT_LAYOUT,
 
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 function ensureCss() { if (document.getElementById('mv-css')) return; const s = document.createElement('style'); s.id = 'mv-css'; s.textContent = CSS; document.head.appendChild(s); }
-function liveItems() { try { return (ctxRef.items() || []).filter((x) => x && x.kind === 'live' && x.url && !x.hidden); } catch (_) { return []; } }
+function liveItems() {
+  try {
+    return (ctxRef.items() || []).filter((x) => x && x.url && !x.hidden &&
+      (typeof ctxRef.isLive === 'function' ? ctxRef.isLive(x) : x.kind === 'live'));
+  } catch (_) { return []; }
+}
 function mpegtsSupported() {
   try {
     return !!(window.mpegts && window.mpegts.isSupported && window.mpegts.isSupported() &&

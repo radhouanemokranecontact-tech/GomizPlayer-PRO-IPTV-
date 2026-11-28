@@ -179,6 +179,7 @@ let downloads = null;
 let win = null;
 let updateGuard = null;
 let updateState = { status: 'idle', version: '', progress: 0, message: '' };
+let rendererStartupHealthy = false; // only startup crashes should trigger rollback offers
 let updatePromptShown = false;
 let lastUpdateInfo = null;
 
@@ -621,13 +622,15 @@ function createWindow() {
 
   // Update guard: renderer becoming ready proves the current version is healthy.
   win.webContents.once('did-finish-load', () => {
+    rendererStartupHealthy = true;
     if (updateGuard) {
       try { updateGuard.noteHealthy(app.getVersion()); } catch (_) {}
     }
   });
-  // If the renderer throws during startup, count it toward a possible rollback.
+  // Only a renderer death before the first successful load is a startup crash.
+  // Counting every later crash produced false rollback offers after an update.
   win.webContents.on('render-process-gone', () => {
-    if (updateGuard) {
+    if (updateGuard && !rendererStartupHealthy) {
       try {
         if (updateGuard.noteCrash(app.getVersion())) sendUpdateStatus({ status: 'rollback-available', message: '' });
       } catch (_) {}
@@ -1119,9 +1122,16 @@ function createWindow() {
                 log.push('pro-health-summary:' + (sum && (sum.ok + sum.dead + sum.unknown) > 0 ? 'ok' : 'FAIL'));
                 await window.api.pro.health.clear();
                 if (healthSourceId) await window.api.sources.remove(healthSourceId);
-                const exp = await window.api.pro.parental.set({ enabled: true, keywords: ['zzzz'], lockedGroups: [] });
-                log.push('pro-parental-set:' + (exp && exp.ok ? 'ok' : 'FAIL'));
-                await window.api.pro.parental.set({ enabled: false, keywords: [], lockedGroups: [] });
+                // Parental filtering is PIN-protected since 2.0.2: set a temporary
+                // app-lock PIN first, then pass it to both enable and disable calls.
+                const lockSet = await window.api.appLock.set({ enabled: true, pin: '1234' });
+                log.push('applock-set:' + (lockSet && lockSet.ok ? 'ok' : 'FAIL'));
+                const exp = await window.api.pro.parental.set({ enabled: true, keywords: ['zzzz'], lockedGroups: [], pin: '1234' });
+                log.push('pro-parental-set:' + (exp && exp.ok ? 'ok' : 'FAIL(' + ((exp && exp.error) || 'unknown') + ')'));
+                const dis = await window.api.pro.parental.set({ enabled: false, keywords: [], lockedGroups: [], pin: '1234' });
+                log.push('pro-parental-clear:' + (dis && dis.ok ? 'ok' : 'FAIL(' + ((dis && dis.error) || 'unknown') + ')'));
+                const lockClear = await window.api.appLock.set({ enabled: false, currentPin: '1234' });
+                log.push('applock-clear:' + (lockClear && lockClear.ok ? 'ok' : 'FAIL'));
               } catch (e) { log.push('pro-EX:' + (e && e.message)); }
 
               window.__novaTest.state.library.search = await window.api.library.search('demo');
@@ -1139,7 +1149,9 @@ function createWindow() {
         }
       }
       const smokeBad = !!detail && /(^|\| )(EX:|pro-EX:|EXEC )|FAIL/.test(detail);
-      console.log('SMOKE_RESULT ' + (ready && !smokeBad ? 'PASS' : 'FAIL') + ' ' + (lastError || ''));
+      const smokePass = ready && !smokeBad;
+      if (!smokePass) process.exitCode = 1; // make `npm run smoke` fail in CI when checks fail
+      console.log('SMOKE_RESULT ' + (smokePass ? 'PASS' : 'FAIL') + ' ' + (lastError || ''));
       if (detail) console.log('SMOKE_DETAIL ' + detail);
 
       if (ready && SCREENSHOTS) {
@@ -1229,10 +1241,12 @@ function createWindow() {
       setTimeout(() => app.quit(), 400);
     });
     win.webContents.on('did-fail-load', (_e, code, desc) => {
+      process.exitCode = 1;
       console.log('SMOKE_RESULT FAIL load ' + code + ' ' + desc);
       setTimeout(() => app.quit(), 200);
     });
     win.webContents.on('render-process-gone', (_e, details) => {
+      process.exitCode = 1;
       console.log('SMOKE_RESULT FAIL renderer ' + details.reason);
       setTimeout(() => app.quit(), 200);
     });
@@ -1262,6 +1276,43 @@ function registerIpc() {
   ipcMain.handle('app:demoPath', () => path.join(app.getAppPath(), 'sample', 'demo.m3u'));
 
   ipcMain.handle('applock:verify', async (event, pin) => { assertTrustedSender(event); return verifyAppLockPin(pin); });
+
+  // Lock changes must go through this PIN-protected channel. settings:patch
+  // deliberately ignores appLock* fields so generic settings IPC cannot disable
+  // the lock (and therefore cannot bypass PRO parental controls).
+  ipcMain.handle('applock:set', async (event, payload) => {
+    assertTrustedSender(event);
+    const p = payload || {};
+    const st = store.settings || {};
+    const lockSet = !!(st.appLockHash || st.appLockSalt || st.appLockPin);
+    const pin = String(p.pin || '');
+
+    if (lockSet) {
+      const v = await verifyAppLockPin(String(p.currentPin || ''));
+      if (!v || !v.ok) return { ok: false, error: 'pin', locked: !!(v && v.locked) };
+    }
+
+    if (p.enabled === false || (!pin && lockSet)) {
+      store.patchSettings({ appLockHash: '', appLockSalt: '', appLockPin: '', appLockEnabled: false });
+      return { ok: true, lockSet: false, enabled: false };
+    }
+
+    if (pin) {
+      let patch;
+      try {
+        const salt = crypto.randomBytes(16);
+        const hash = crypto.scryptSync(pin, salt, 64);
+        patch = { appLockHash: hash.toString('base64'), appLockSalt: salt.toString('base64'), appLockPin: '', appLockEnabled: true };
+      } catch (_) {
+        return { ok: false, error: 'lock-unavailable' };
+      }
+      store.patchSettings(patch);
+      return { ok: true, lockSet: true, enabled: true };
+    }
+
+    store.patchSettings({ appLockEnabled: p.enabled !== false });
+    return { ok: true, lockSet: false, enabled: p.enabled !== false };
+  });
 
   ipcMain.handle('update:status', (event) => { assertTrustedSender(event); return updateState; });
 
@@ -1366,7 +1417,10 @@ function registerIpc() {
     const prev = store.settings || {};
     let p = Object.assign({}, patch || {});
     // Derived/secret fields can only be set through their dedicated flows.
-    delete p.appLockHash; delete p.appLockSalt; delete p.telemetryInstallId;
+    // Lock and PRO settings have dedicated, PIN-protected channels. Never let a
+    // generic settings patch touch them: that was a parental-control bypass.
+    delete p.appLockHash; delete p.appLockSalt; delete p.appLockPin;
+    delete p.appLockEnabled; delete p.appLockCurrentPin; delete p.telemetryInstallId;
     delete p.proParental; delete p.proHideDead; // changed only via pro:* channels (PIN-protected / cache-aware)
     if (typeof p.telemetryEndpoint === 'string' && p.telemetryEndpoint.trim()) {
       try { const tu = new URL(p.telemetryEndpoint.trim()); if (!/^https?:$/.test(tu.protocol)) throw 0; p.telemetryEndpoint = tu.toString(); }
@@ -1385,19 +1439,6 @@ function registerIpc() {
           else p[dirKey] = rp;
         }
         if (!ok) delete p[dirKey];
-      }
-    }
-    if (Object.prototype.hasOwnProperty.call(p, 'appLockPin')) {
-      const pin = String(p.appLockPin || '');
-      delete p.appLockPin;
-      if (pin) {
-        const salt = crypto.randomBytes(16);
-        const hash = crypto.scryptSync(pin, salt, 64);
-        p.appLockHash = hash.toString('base64');
-        p.appLockSalt = salt.toString('base64');
-      } else {
-        p.appLockHash = '';
-        p.appLockSalt = '';
       }
     }
     const res = store.patchSettings(p);
@@ -1430,7 +1471,8 @@ function registerIpc() {
     try {
       const src = store.sources().find((s) => s.id === id);
       if (!src || src.kind !== 'xtream') return { ok: false };
-      const enc = await secrets.encryptSecret(String(password || ''));
+      const enc = await secrets.encryptSecret(String(password || ''), { requireEncryption: true });
+      if (!enc) return { ok: false, error: 'secure-storage-unavailable' };
       store.updateSource(id, { password: '', passwordEnc: enc, passwordEncV: 2 });
       return { ok: true };
     } catch (e) { return { ok: false, error: String(e && e.message || e) }; }
@@ -1483,7 +1525,9 @@ function registerIpc() {
   ipcMain.handle('sources:refresh', async (event, id) => {
     assertTrustedSender(event);
     const source = store.sources().find((s) => s.id === id);
-    if (!source) throw new Error('Source not found');
+    // A source can be removed while a background refresh is in flight. Return a
+    // structured result instead of throwing an unhandled IPC error.
+    if (!source) return { error: 'Source not found', items: [], count: 0, groups: [], fetchedAt: 0 };
     const data = await loadSource(source);
     store.updateSource(id, { count: data.count });
     return {
@@ -1696,7 +1740,12 @@ function registerIpc() {
       const file = downloads.fileFor(rec);
       const customDl = String((store && store.settings && store.settings.downloadsDir) || '').trim();
       const downloadsDir = customDl || app.getPath('downloads');
-      if (!isPathInsideDir(file, downloadsDir)) return false;
+      // Completed downloads may live in the legacy directory or the directory
+      // recorded on the record itself (e.g. downloadsDir changed after download).
+      const roots = [downloadsDir, path.join(app.getPath('userData'), 'downloads')];
+      if (typeof rec.dir === 'string' && path.isAbsolute(rec.dir)) roots.push(path.resolve(rec.dir));
+      const resolved = path.resolve(file);
+      if (!roots.some((root) => isPathInsideDir(resolved, path.resolve(root)))) return false;
       shell.showItemInFolder(path.resolve(file));
       return true;
     } catch (_) { return false; }
@@ -1756,20 +1805,30 @@ function registerIpc() {
           return { error: 'Secure credential storage is unavailable on this system. Import was canceled to avoid storing passwords without encryption. Existing sources were not changed.' };
         }
       }
+      // importBackup() saves immediately. Snapshot first so a failure while
+      // re-encrypting credentials can roll back instead of leaving plaintext
+      // passwords on disk after reporting "import failed".
+      const snapshot = JSON.parse(JSON.stringify(store.data || {}));
+      const rollback = () => { try { store.data = snapshot; store.save(); } catch (_) {} };
       store.importBackup(raw);
       try {
         const sources = store.sources() || [];
         for (const src of sources) {
           if (src && src.password && !src.passwordEnc) {
-            try {
-              const enc = await encryptSecret(src.password, { requireEncryption: true });
-              if (enc) store.updateSource(src.id, { passwordEnc: enc, password: '', passwordEncV: 2 });
-            } catch (err) {
+            let enc = '';
+            try { enc = await encryptSecret(src.password, { requireEncryption: true }); } catch (err) {
+              rollback();
               return { error: (err && (err.userMessage || err.message)) || 'Could not securely store imported credentials' };
             }
+            if (!enc) {
+              rollback();
+              return { error: 'Secure credential storage is unavailable; import was rolled back to avoid storing plaintext passwords' };
+            }
+            store.updateSource(src.id, { passwordEnc: enc, password: '', passwordEncV: 2 });
           }
         }
       } catch (err) {
+        rollback();
         return { error: (err && (err.userMessage || err.message)) || 'Import failed while securing credentials' };
       }
       return { ok: true };
@@ -2183,26 +2242,35 @@ async function startRecordingCore(payload, opts = {}) {
     // Keep only a small tail for an eventual error message.
     proc.stderr.on('data', (d) => { stderr = (stderr + d.toString()).slice(-8192); });
   }
-  // Wait briefly to detect immediate failures (bad URL, 404, etc.).
-  const earlyExit = await new Promise((resolve) => {
-    const timer = setTimeout(() => resolve(null), 2500);
-    const onExit = (code) => { clearTimeout(timer); resolve(code); };
-    const onErr = (err) => { clearTimeout(timer); resolve('ERR:' + (err && err.message || err)); };
-    proc.once('exit', onExit);
-    proc.once('error', onErr);
-  });
-  if (earlyExit !== null) {
+  // Wait briefly to detect immediate failures (bad URL, 404, etc.). The cleanup
+  // listener is attached immediately so an exit in the small window after the
+  // timeout fires can never leave recordingProc stuck forever.
+  let resolveEarly;
+  let earlyDone = false;
+  const early = new Promise((resolve) => { resolveEarly = resolve; });
+  const onEnd = (reason) => {
     if (recordingProc === proc) { recordingProc = null; recordingPath = null; recordingTarget = null; }
-    const msg = stderr.trim().split('\n').pop() || ('ffmpeg exited with code ' + earlyExit);
-      recordingLastError = msg;
+    if (earlyDone) return;
+    earlyDone = true;
+    clearTimeout(timer);
+    resolveEarly(typeof reason === 'string' && reason.startsWith('ERR:') ? reason : (typeof reason === 'number' ? reason : 0));
+  };
+  const timer = setTimeout(() => {
+    if (earlyDone) return;
+    earlyDone = true;
+    resolveEarly(null); // no early failure; onEnd stays attached for the real exit
+  }, 2500);
+  proc.on('exit', onEnd);
+  proc.on('error', onEnd);
+  const earlyExit = await early;
+  if (earlyExit !== null) {
+    const msg = String(earlyExit).startsWith('ERR:')
+      ? String(earlyExit).slice(4)
+      : (stderr.trim().split('\n').pop() || ('ffmpeg exited with code ' + earlyExit));
+    recordingLastError = msg;
     try { fs.unlinkSync(outPath); } catch (_) {}
     return { error: msg };
   }
-  const onEnd = () => {
-    if (recordingProc === proc) { recordingProc = null; recordingPath = null; recordingTarget = null; }
-  };
-  proc.on('exit', onEnd);
-  proc.on('error', onEnd);
   return { ok: true, path: outPath, target };
 }
 
@@ -2265,7 +2333,9 @@ async function fetchBuffer(url, limit, timeoutMs = 120000) {
   try {
     await assertSafeUrl(String(url || ''), {});
     const res = await safeGet(String(url), {
-      headers: { 'User-Agent': networkUA(), Accept: '*/*' },
+      // Ask for the raw bytes: refreshEpg() handles .gz explicitly. Without this,
+      // safeGet decompresses Content-Encoding:gzip and .gz feeds get gunzipped twice.
+      headers: { 'User-Agent': networkUA(), Accept: '*/*', 'Accept-Encoding': 'identity' },
       signal: ctl.signal, timeoutMs, guard: 'none'
     });
     if (res.status < 200 || res.status >= 300) { try { res.stream.destroy(); } catch (_) {} throw new Error('HTTP ' + res.status); }

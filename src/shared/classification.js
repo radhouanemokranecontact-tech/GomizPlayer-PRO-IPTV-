@@ -291,25 +291,24 @@
     const byUrlExplicit = explicitTypeFromUrl(url);
     if (byUrlExplicit) return byUrlExplicit;
 
-    // 2) Explicit IPTV group-title metadata
+    // 2) Provider-supplied explicit type fields and previously stored kind are
+    // authoritative. Title/group guesses must never override real metadata.
+    const byStored = explicitTypeFromFields(item);
+    if (byStored) return byStored;
+    const storedKind = normalizeKind(getField(item, ['kind']));
+    if (storedKind && storedKind !== 'unknown') return storedKind;
+
+    // 3) Explicit IPTV group-title metadata
     const byGroup = classifyGroup(item);
     if (byGroup) return byGroup;
 
-    // 3) Category names and category identifiers
+    // 4) Category names and category identifiers
     const byCat = classifyCategory(item);
     if (byCat) return byCat;
 
-    // 4) tvg-name and item metadata (name/title hints)
+    // 5) tvg-name and item metadata (name/title hints)
     const byName = classifyNameMeta(item);
     if (byName) return byName;
-
-    // 5) Explicit content type stored in the source data
-    const byStored = explicitTypeFromFields(item);
-    if (byStored) return byStored;
-
-    // (also consider previously normalized stored kind if it was explicit live/movie/series - as stored data type)
-    const storedKind = normalizeKind(getField(item, ['kind']));
-    if (storedKind && storedKind !== 'unknown') return storedKind;
 
     // 6) Stream extension only as a last-resort fallback (never Live solely because .m3u8/.ts)
     const byExt = classifyByExtension(url);

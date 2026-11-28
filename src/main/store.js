@@ -354,6 +354,7 @@ class Store {
       const lib = {};
       for (const [pk, pv] of Object.entries(raw.library).slice(0, 50)) {
         if (!pv || typeof pv !== 'object' || Array.isArray(pv)) continue;
+        if (pk === '__proto__' || pk === 'prototype' || pk === 'constructor') continue;
         const sanitizeArr = (arr, max) => Array.isArray(arr) ? arr.slice(0, max).filter(x => x && typeof x === 'object') : [];
         lib[String(pk).slice(0, 40)] = {
           favorites: sanitizeArr(pv.favorites, 5000),
@@ -384,7 +385,11 @@ class Store {
     };
   }
 
-  profileId(name) { return name || 'default'; }
+  profileId(name) {
+    const id = String(name || '').trim().slice(0, 40) || 'default';
+    // These keys resolve through Object.prototype and would pollute it in library().
+    return (id === '__proto__' || id === 'prototype' || id === 'constructor') ? 'default' : id;
+  }
 
   profiles() {
     const keys = Object.keys(this.data.library || {});
@@ -394,7 +399,7 @@ class Store {
 
   createProfile(name) {
     const id = String(name || '').trim().slice(0, 40);
-    if (!id) throw new Error('Invalid profile name');
+    if (!id || id === '__proto__' || id === 'prototype' || id === 'constructor') throw new Error('Invalid profile name');
     this.library(id);
     this.save();
     return id;
@@ -411,7 +416,7 @@ class Store {
 
   library(profile) {
     const id = this.profileId(profile);
-    if (!this.data.library[id]) {
+    if (!Object.prototype.hasOwnProperty.call(this.data.library, id)) {
       this.data.library[id] = { favorites: [], history: [], liveHistory: [], search: [] };
     }
     const lib = this.data.library[id];

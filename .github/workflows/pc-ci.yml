@@ -66,6 +66,9 @@ jobs:
       - name: Classification parity (JS fixtures)
         run: npm run test:classification-parity
 
+      - name: Post-release bugfix regressions
+        run: npm run test:bugfix
+
       - name: Secrets integration (Electron)
         run: npm run test:secrets
 

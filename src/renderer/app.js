@@ -372,8 +372,11 @@ async function toggleFavorite(item) {
   toast(on ? t('favorite_added') : t('favorite_removed'), 'ok');
   // Reflect state immediately in every visible card with matching data-fav
   try {
-    const sel = '[data-fav="' + (window.CSS && CSS.escape ? CSS.escape(key) : key) + '"]';
-    document.querySelectorAll(sel).forEach((node) => {
+    // Compare the raw dataset value instead of building an escaped selector:
+    // data-fav already contains cssEscape(key) from posterNode(), so escaping
+    // the raw key again here never matched keys with ':' '/' or spaces.
+    document.querySelectorAll('[data-fav]').forEach((node) => {
+      if (node.dataset.fav !== key) return;
       node.classList.toggle('on', on);
       node.setAttribute('aria-pressed', on ? 'true' : 'false');
       node.title = on ? t('unfavorite') : t('favorite');
@@ -456,11 +459,15 @@ function playItem(item, list, opts) {
   const playlist = (list || []).filter((x) => x && x.url);
   const p = ensurePlayer();
   const favMode = !!(opts && opts.favoritesMode);
-  p.openItem(item, {
+  // Old cached playlists may store only a group/category hint. Normalize once
+  // here so the player uses live/VOD behavior consistent with the rest of the UI.
+  const kind = effectiveMediaKind(item);
+  const normalizedItem = Object.assign({}, item, { kind });
+  p.openItem(normalizedItem, {
     playlist,
     resume: resumeFor(item),
     logo: item.logo,
-    epg: item.kind === 'live' ? epgNowNext(item) : null,
+    epg: kind === 'live' ? epgNowNext(item) : null,
     getEpgFor: (channel) => epgNowNext(channel),
     onAddEpg: () => {
       p.close();
@@ -634,7 +641,7 @@ function posterNode(item, { wide = false } = {}) {
   poster.appendChild(overlay);
 
   const fav = el('button', 'card-fav' + (isFavorite(item.key) ? ' on' : ''));
-  fav.setAttribute('data-fav', cssEscape(item.key));
+  fav.setAttribute('data-fav', item.key); // store raw key; selectors escape once at use site
   fav.title = isFavorite(item.key) ? t('unfavorite') : t('favorite');
   fav.appendChild(iconSpan('heart'));
   fav.addEventListener('click', (e) => {
@@ -750,6 +757,7 @@ function openMultiview() {
   if (player && player.open) { try { player.close(true); } catch (_) {} }
   window.GomizMultiview.open({
     items: () => state.items,
+    isLive: (item) => isLiveKind(item),
     settings: () => state.settings,
     patchSettings: (p) => patchSettings(p),
     autoFailover: () => !(state.settings && state.settings.proAutoFailover === false),
@@ -1929,6 +1937,7 @@ function renderSources() {
 
 async function refreshSource(id) {
   const data = await window.api.sources.refresh(id);
+  if (data && data.error) throw new Error(data.error);
   const source = state.sources.find((s) => s.id === id);
   if (source) {
     source.count = data.count;
@@ -2537,15 +2546,30 @@ function settingsGeneral(panel) {
   panel.appendChild(toggleRow(t('high_contrast'), '', !!state.settings.highContrast, async (on) => { await patchSettings({ highContrast: on }); }));
 
   panel.appendChild(el('h3', null, t('privacy_security')));
+  const askLockPin = async () => state.settings.appLockSet
+    ? await promptModal(t('app_lock') || 'App lock', t('app_lock_current_pin') || 'Current PIN', '', true)
+    : '';
   panel.appendChild(toggleRow(t('app_lock'), t('app_lock_hint'), !!state.settings.appLockEnabled, async (on) => {
-    await patchSettings({ appLockEnabled: on });
+    const currentPin = on ? '' : await askLockPin();
+    if (currentPin === null) { render(); return; }
+    const r = await window.api.appLock.set({ enabled: on, currentPin });
+    if (!r || !r.ok) { toast((r && r.error === 'pin') ? (t('wrong_pin') || 'Incorrect PIN') : (t('save_failed') || 'Could not update app lock'), 'err'); render(); return; }
+    await patchSettings({}); // reload sanitized settings from the store
     render();
   }));
   if (state.settings.appLockEnabled) {
     const pinField = field(t('app_lock_pin'), inputNode('password', 'PIN'));
     pinField.input.value = '';
     panel.appendChild(pinField);
-    const pinSave = makeButton(t('save'), { cls: 'btn btn-ghost btn-sm', onClick: async () => { await patchSettings({ appLockPin: pinField.input.value.trim() }); toast(t('saved'), 'ok'); } });
+    const pinSave = makeButton(t('save'), { cls: 'btn btn-ghost btn-sm', onClick: async () => {
+      const currentPin = await askLockPin();
+      if (currentPin === null) return;
+      const r = await window.api.appLock.set({ enabled: true, pin: pinField.input.value.trim(), currentPin });
+      if (!r || !r.ok) { toast((r && r.error === 'pin') ? (t('wrong_pin') || 'Incorrect PIN') : (t('save_failed') || 'Could not save PIN'), 'err'); return; }
+      await patchSettings({});
+      pinField.input.value = '';
+      toast(t('saved'), 'ok');
+    } });
     pinSave.style.marginBottom = '8px';
     panel.appendChild(pinSave);
   }
@@ -2585,6 +2609,7 @@ function settingsGeneral(panel) {
 
 function promptModal(title, label, def, secret = false) {
   return new Promise((resolve) => {
+    promptResolve = resolve; // so closing via X/backdrop still resolves instead of hanging
     const wrap = el('div');
     wrap.appendChild(el('h2', null, title));
     wrap.appendChild(el('p', 'lead', label));
@@ -2595,8 +2620,8 @@ function promptModal(title, label, def, secret = false) {
     if (def) input.value = def;
     wrap.appendChild(input);
     const actions = el('div', 'modal-actions');
-    const cancel = makeButton(t('cancel'), { cls: 'btn btn-ghost', onClick: () => { closeModal(); resolve(null); } });
-    const save = makeButton(t('save'), { cls: 'btn btn-primary', onClick: () => { const v = input.value.trim(); closeModal(); resolve(v || null); } });
+    const cancel = makeButton(t('cancel'), { cls: 'btn btn-ghost', onClick: () => { promptResolve = null; closeModal(); resolve(null); } });
+    const save = makeButton(t('save'), { cls: 'btn btn-primary', onClick: () => { const v = input.value.trim(); promptResolve = null; closeModal(); resolve(v || null); } });
     actions.appendChild(cancel);
     actions.appendChild(save);
     openModalWithActions(wrap, actions);
@@ -3632,9 +3657,15 @@ function closeModal() {
     confirmResolve = null;
     resolve(false);
   }
+  if (promptResolve) {
+    const resolve = promptResolve;
+    promptResolve = null;
+    resolve(null);
+  }
 }
 
 let confirmResolve = null;
+let promptResolve = null;
 
 function confirmModal(title, text, okLabel, danger) {
   const wrap = el('div');
@@ -4072,6 +4103,9 @@ function bindGlobal() {
   });
 
   document.addEventListener('keydown', (e) => {
+    // The player owns keyboard shortcuts while open. Handling Escape here too
+    // used to close the video *and* navigate the page behind it.
+    if (player && player.open && (e.key === 'Escape' || e.key === '/')) return;
     const tag = (e.target && e.target.tagName) || '';
     const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
     if (typing) return;

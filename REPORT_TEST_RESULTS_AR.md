@@ -1,111 +1,55 @@
-# تقرير نتائج اختبار الإصدار 2.0.2
+# تقرير نتائج اختبار الإصدار 2.0.3
 
-**النطاق:** نسخة Windows x64 من المستودع الجديد `GomizPlayer-PRO-IPTV-`، بتاريخ 2026-11-27. هذا هو التقرير الحالي؛ سجلات التدقيق الأقدم محفوظة عند الحاجة في Git history ولا تمثل نتائج 2.0.2.
+**النطاق:** نسخة Windows x64 من `GomizPlayer-PRO-IPTV-`، بتاريخ 2026-11-28. يصف هذا التقرير الإصدار الحالي 2.0.3 بعد إصلاحات الأخطاء؛ السجلات الأقدم في Git history هي سجل تاريخي.
 
-## النتائج الحالية
+## النتائج المحلية
 
 | الفحص | النتيجة | الدليل أو النطاق |
 |---|---|---|
-| Playwright UI Smoke | PASS | عناصر PRO والتدفق البديل وPIN وXSS والعربية |
-| Playwright Multiview | PASS | WebM وHLS H.264، failover، الصوت، 4 تخطيطات، حفظ الحالة، RTL والتنظيف |
-| GitHub release regression | PASS | 15 مجموعة: SSRF، net guard، hardening، PRO، PRO IPC، media، classification، secrets audit، backup، update guard، manifest signature، EPG stream، classification parity، player engine، multiview overlay |
-| `npm audit` | PASS | 0 ثغرات من 309 تبعيات (0 منخفضة/متوسطة/عالية/حرجة) |
-| بناء Windows محلي | PASS | NSIS وPortable x64 وblockmap أُنشئت في `dist/v2.0.2/` |
-| بناء Windows في GitHub Actions | PASS | أُنشئت الحزم وتحقق المسار من وجودها |
-| توقيع بيان التحديث في GitHub | PASS | توقيع Ed25519 والتحقق من manifest 2.0.2 |
-| نشر أصول الإصدار | PASS | نُشر `v2.0.2` للعامة وأصبحت الملفات الأربعة متاحة |
+| 16 مجموعة اختبار Node | PASS | SSRF، classification، secrets audit، backup، update guard، manifest signature، EPG stream، classification parity، net guard، hardening، PRO، PRO IPC، media، player engine، multiview overlay، bugfix |
+| `npm run test:secrets` | PASS | تشفير/فك تشفير آمن، رفض كلمة مرور خاطئة، فشل واضح عند تلف البيانات |
+| `npm run test:ui` | PASS | UI Smoke وMultiview عبر Playwright؛ بلا أخطاء JavaScript |
+| `npm run smoke` | PASS | `SMOKE_RESULT PASS`، رمز خروج 0، بما في ذلك قفل التطبيق والرقابة الأبوية |
+| `npm audit` | PASS | 0 ثغرات معلنة |
+| بناء Windows محلي | PASS | NSIS وPortable x64 وblockmap في `dist/v2.0.3/` |
+| مطابقة بيان التحديث المحلي | PASS | `dist/latest.yml` يطابق الحجم وبصمة SHA-512 لملف Setup |
+| `verify:release-manifest` محلياً | FAIL متوقع | البيان المحلي غير موقّع؛ التحقق يتطلب البيان الموقّع من CI |
 
 ## ملفات البناء المحلية
 
 | الملف | الحجم بالبايت |
 |---|---:|
-| `GomizPlayer-PRO-IPTV-Setup-2.0.2.exe` | 151,060,265 |
-| `GomizPlayer-PRO-IPTV-Portable-2.0.2.exe` | 134,938,997 |
-| `GomizPlayer-PRO-IPTV-Setup-2.0.2.exe.blockmap` | 158,245 |
+| `GomizPlayer-PRO-IPTV-Setup-2.0.3.exe` | 151,061,875 |
+| `GomizPlayer-PRO-IPTV-Portable-2.0.3.exe` | 134,947,563 |
+| `GomizPlayer-PRO-IPTV-Setup-2.0.3.exe.blockmap` | 158,266 |
 
-`dist/latest.yml` يحدد الإصدار 2.0.2، وقد طابق الحجم وبصمة SHA-512 لملف Setup في الفحص المحلي. البيان المحلي غير موقّع، وملفات Windows غير موقعة Authenticode.
+ملفات Windows غير موقعة Authenticode، ولهذا قد يعرض Windows تحذير ناشر غير معروف.
 
-### أصول GitHub المرفوعة للإصدار
+## الإصدار على GitHub
 
-| الملف | الحجم بالبايت | الحالة |
-|---|---:|---|
-| `GomizPlayer-PRO-IPTV-Setup-2.0.2.exe` | 151,061,611 | uploaded |
-| `GomizPlayer-PRO-IPTV-Portable-2.0.2.exe` | 134,937,299 | uploaded |
-| `GomizPlayer-PRO-IPTV-Setup-2.0.2.exe.blockmap` | 158,372 | uploaded |
-| `latest.yml` | 661 | uploaded، موقّع ومتحقق منه في CI |
-
-هذه الأحجام تخص بناء GitHub Actions؛ قد تختلف قليلاً عن البناء المحلي بسبب بيانات البناء. الملفات متاحة للعامة في [إصدار v2.0.2](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.2).
-
-## تفاصيل اختبار Multiview
-
-كان الاختبار يتخطى FFmpeg لأن فحصه السابق لم يكتشف `ffmpeg-static` على Windows. بعد إصلاح ذلك ظهر خلل في عينة الاختبار نفسها: ملف HLS كان يطلب `init.mp4` من مسار لا يحتوي الملف، كما أن عينة VP9/fMP4 لم تكن مناسبة لهذا الاختبار. أصبحت العينة H.264/AVC، ويعمل FFmpeg من مجلد ملفات HLS. أضيف مسار اختياري لتحديد Chrome المثبت عبر `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` عند غياب Chromium في مخزن Playwright.
-
-نتيجة `npm run test:ui` المحلية: **نجح الاختباران**، ولم تُسجل أخطاء JavaScript. شُغّلا باستخدام Chrome المثبت وFFmpeg المضمّن.
-
-## حالة الإصدار والنشر
-
-بعد إضافة سر `UPDATE_SIGNING_PRIVATE_KEY` نجح مسار الإصدار: اختبارات الانحدار، بناء Windows، توقيع `latest.yml` والتحقق منه، ونشر أصول `v2.0.2` الأربعة للعامة.
-
-[تشغيل الإصدار الناجح](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/45960310720) · [الإصدار العام v2.0.2](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.2)
+يُنشأ الإصدار عبر سير **Build PC release draft** في GitHub Actions: يجري الاختبارات، يبني الحزم، يوقّع `dist/latest.yml` باستخدام السر `UPDATE_SIGNING_PRIVATE_KEY`، يتحقق من التوقيع، ثم يرفع Setup وPortable وblockmap والبيان الموقّع. رابط التشغيل والإصدار يُحدَّث بعد اكتماله.
 
 ## حدود التغطية
 
-- لم يُختبر MPEG-DASH مع مزوّد IPTV فعلي، ولا يعلن التطبيق دعم DRM.
+- لم يُختبر MPEG-DASH أو البث مع مزوّد IPTV فعلي؛ لا يُدّعى دعم DRM.
 - نجاح اختبارات الوسائط المحلية لا يثبت التوافق مع كل خوادم IPTV أو الترميزات أو إعدادات CORS.
-- لا يحمل التطبيق توقيع Authenticode تجارياً.
+- توقيع manifest يمنع التلاعب ببيان التحديث، لكنه لا يستبدل توقيع Authenticode لملفات Windows.
 
 ---
 
-# Version 2.0.2 Test Results (English)
+# Version 2.0.3 Test Results (English)
 
-**Scope:** Windows x64 source/package version 2.0.2 in the new repository, as of 2026-11-27. Older audit reports are historical records and do not describe this verification run.
-
-## Current results
+**Scope:** Windows x64 build of the current 2.0.3 source, 2026-11-28.
 
 | Check | Result | Evidence/scope |
 |---|---|---|
-| Playwright UI Smoke | PASS | PRO navigation, failover, PIN flow, XSS probe, Arabic labels |
-| Playwright Multiview | PASS | WebM and H.264 HLS, failover, audio selection, four layouts, persistence, RTL, cleanup |
-| GitHub release regressions | PASS | 15 groups: SSRF, net guard, hardening, PRO, PRO IPC, media, classification, secrets audit, backup, update guard, manifest signature, EPG stream, classification parity, player engine, Multiview overlay |
-| `npm audit` | PASS | 0 known vulnerabilities across 309 dependencies (0 low/moderate/high/critical) |
-| Local Windows build | PASS | NSIS, portable x64, and blockmap created under `dist/v2.0.2/` |
-| GitHub Actions Windows build | PASS | Packages built and artifact-presence checks passed |
-| GitHub updater-manifest signing | PASS | Ed25519 signature created and verified for manifest v2.0.2 |
-| GitHub release assets | PASS | Draft `v2.0.2` created with all four assets uploaded |
+| 16 Node regression groups | PASS | SSRF, classification, secrets audit, backup, update guard, manifest signature, EPG stream, parity, net guard, hardening, PRO, PRO IPC, media, player engine, Multiview overlay, bugfix |
+| Electron secrets integration | PASS | Encryption/decryption and clear failure modes |
+| Playwright UI smoke + Multiview | PASS | No JavaScript errors |
+| Smoke test | PASS | `SMOKE_RESULT PASS`, exit code 0 |
+| `npm audit` | PASS | 0 known vulnerabilities |
+| Local Windows build | PASS | NSIS, portable x64, blockmap in `dist/v2.0.3/` |
+| Local manifest hash/size match | PASS | `dist/latest.yml` matches the Setup artifact |
+| Local `verify:release-manifest` | Expected FAIL | Local manifest is unsigned; CI signs it with the repository secret |
 
-## Local build artifacts
-
-| File | Size in bytes |
-|---|---:|
-| `GomizPlayer-PRO-IPTV-Setup-2.0.2.exe` | 151,060,265 |
-| `GomizPlayer-PRO-IPTV-Portable-2.0.2.exe` | 134,938,997 |
-| `GomizPlayer-PRO-IPTV-Setup-2.0.2.exe.blockmap` | 158,245 |
-
-`dist/latest.yml` identifies version 2.0.2 and matched the Setup size and SHA-512 in the local check. The manifest is unsigned; the Windows executables have no Authenticode signature.
-
-### GitHub release assets
-
-| File | Size in bytes | Status |
-|---|---:|---|
-| `GomizPlayer-PRO-IPTV-Setup-2.0.2.exe` | 151,061,611 | uploaded |
-| `GomizPlayer-PRO-IPTV-Portable-2.0.2.exe` | 134,937,299 | uploaded |
-| `GomizPlayer-PRO-IPTV-Setup-2.0.2.exe.blockmap` | 158,372 | uploaded |
-| `latest.yml` | 661 | uploaded; signed and verified by CI |
-
-These are GitHub Actions build sizes and may differ slightly from the local build. The files are publicly available in [release v2.0.2](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.2).
-
-## Multiview test details
-
-The test previously skipped FFmpeg because its detection did not find `ffmpeg-static` on Windows. Enabling FFmpeg exposed a fixture issue: HLS requested `init.mp4` from a directory that did not contain it, and VP9/fMP4 was unsuitable for this test. The fixture now uses H.264/AVC and runs FFmpeg in the HLS output directory. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` can select installed Chrome when Playwright's managed Chromium is unavailable.
-
-Local `npm run test:ui`: **both UI Smoke and Multiview passed**, with no JavaScript errors, using installed Chrome and bundled FFmpeg.
-
-## Release status and limits
-
-After the `UPDATE_SIGNING_PRIVATE_KEY` secret was added, the release workflow passed regressions, Windows packaging, Ed25519 manifest signing/verification, and upload of all four `v2.0.2` assets. [Release v2.0.2 is publicly available](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.2).
-
-[Successful GitHub Actions run](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/45960310720) · [Public release v2.0.2](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.2)
-
-- MPEG-DASH was not tested against a real IPTV provider; DRM support is not claimed.
-- Local media tests do not prove compatibility with every provider, codec, or CORS configuration.
-- Windows binaries are not Authenticode-signed.
+GitHub release assets are produced by the release workflow with an Ed25519-signed `latest.yml`; the run and release links are recorded after completion. Windows binaries are not Authenticode-signed. No real IPTV provider or DRM support was tested.

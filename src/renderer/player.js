@@ -1380,12 +1380,16 @@ class Player {
       }
     }
 
-    if (trk.sub != null && hlsTracks.length) {
+    if (trk.sub === -1) {
+      // Explicit "off" from the user wins over any saved track or language preference.
+      try { if (this.hls) { this.hls.subtitleDisplay = false; this.hls.subtitleTrack = -1; } } catch (_) {}
+      native.forEach((t) => { if (t.kind === 'subtitles' || t.kind === 'captions') t.mode = 'disabled'; });
+    } else if (trk.sub != null && hlsTracks.length) {
       this.hls.subtitleDisplay = true;
       this.hls.subtitleTrack = trk.sub;
     } else if (trk.sub != null) {
-      const nativeSubs = native.filter((t) => t.kind === 'subtitles' || t.kind === 'captions');
-      if (nativeSubs.length) nativeSubs.forEach((t, i) => { t.mode = i === trk.sub ? 'showing' : 'disabled'; });
+      const nativeSubs = native.map((t, i) => ({ t, i })).filter(x => x.t.kind === 'subtitles' || x.t.kind === 'captions');
+      if (nativeSubs.length) nativeSubs.forEach(x => { x.t.mode = x.i === trk.sub ? 'showing' : 'disabled'; });
     } else if (prefSub && hlsTracks.length) {
       const idx = hlsTracks.findIndex(t => String(t.lang||t.name||'').toLowerCase().includes(prefSub));
       if (idx >= 0) { this.hls.subtitleDisplay = true; this.hls.subtitleTrack = idx; }
@@ -1409,8 +1413,8 @@ class Player {
       const on = this.hls.subtitleDisplay && this.hls.subtitleTrack === i;
       html += '<button class="pop-item' + (on ? ' on' : '') + '" data-hls-sub="' + i + '">' + (on ? '✓ ' : '') + esc(track.name || track.lang || ('Track ' + (i + 1))) + '</button>';
     });
-    nativeTracks.forEach((track, i) => {
-      if (track.kind !== 'subtitles' && track.kind !== 'captions') return;
+    // Keep the global textTrack index: metadata/chapter tracks may precede subs.
+    nativeTracks.map((track, i) => ({ track, i })).filter((x) => x.track.kind === 'subtitles' || x.track.kind === 'captions').forEach(({ track, i }) => {
       html += '<button class="pop-item' + (track.mode === 'showing' ? ' on' : '') + '" data-native-sub="' + i + '">' + (track.mode === 'showing' ? '✓ ' : '') + esc(track.label || track.language || ('Track ' + (i + 1))) + '</button>';
     });
     if (this.subCues.length) {
@@ -1451,6 +1455,12 @@ class Player {
     this.pop.querySelectorAll('[data-native-sub]').forEach((el) => el.addEventListener('click', () => {
       const idx = Number(el.getAttribute('data-native-sub'));
       this.selectNativeTrack(idx);
+      // Persist the global textTrack index so refreshTracks() reapplies the same track.
+      const key = (this.item && this.item.key) || 'default';
+      const per = Object.assign({}, (this.opts.settings || {}).perChannelAudio || {});
+      per[key] = Object.assign({}, (per[key] || {}), { sub: idx });
+      this.opts.settings = Object.assign({}, this.opts.settings, { perChannelAudio: per });
+      this.opts.patchSettings && this.opts.patchSettings({ perChannelAudio: per });
       this.pop.hidden = true; this.popOwner = null;
     }));
     const ss = this.pop.querySelector('[data-sub-search]'); if (ss) ss.addEventListener('click', () => { const q = encodeURIComponent((this.item && (this.item.name||this.item.title)) || ''); try { window.api.shell.openExternal('https://www.opensubtitles.com/en/search-all/q-' + q); } catch (_) {} this.pop.hidden = true; this.popOwner = null; });
@@ -1530,6 +1540,13 @@ class Player {
     this.subCues = [];
     this.subName = '';
     this.renderer.setCues([]);
+    // Persist an explicit "off" so refreshTracks() cannot immediately re-enable
+    // a saved track or a preferred-subtitle-language fallback.
+    const key = (this.item && this.item.key) || 'default';
+    const per = Object.assign({}, (this.opts.settings || {}).perChannelAudio || {});
+    per[key] = Object.assign({}, per[key] || {}, { sub: -1 });
+    this.opts.settings = Object.assign({}, this.opts.settings, { perChannelAudio: per });
+    this.opts.patchSettings && this.opts.patchSettings({ perChannelAudio: per });
     if (this.hls) {
       this.hls.subtitleDisplay = false;
       this.hls.subtitleTrack = -1;
@@ -1594,7 +1611,9 @@ class Player {
     this.popOwner = 'tracks';
     const hlsAudio = this.hls && this.hls.audioTracks ? this.hls.audioTracks : [];
     const hlsSubs = this.hls && this.hls.subtitleTracks ? this.hls.subtitleTracks : [];
-    const nativeTracks = this.video && this.video.textTracks ? Array.from(this.video.textTracks).filter((t) => t.kind === 'subtitles' || t.kind === 'captions') : [];
+    const nativeTracks = this.video && this.video.textTracks
+      ? Array.from(this.video.textTracks).map((t, i) => ({ t, i })).filter((x) => x.t.kind === 'subtitles' || x.t.kind === 'captions')
+      : [];
 
     let html = '<div class="pop-title">' + window.t('audio') + '</div>';
     if (hlsAudio.length) {
@@ -1615,7 +1634,7 @@ class Player {
       const on = this.hls && this.hls.subtitleDisplay && this.hls.subtitleTrack === i;
       html += '<button class="pop-item' + (on ? ' on' : '') + '" data-hls-sub="' + i + '">' + (on ? '✓ ' : '') + esc(track.name || track.lang || ('Track ' + (i + 1))) + '</button>';
     });
-    nativeTracks.forEach((track, i) => {
+    nativeTracks.forEach(({ t: track, i }) => {
       const on = track.mode === 'showing';
       html += '<button class="pop-item' + (on ? ' on' : '') + '" data-native-sub="' + i + '">' + (on ? '✓ ' : '') + esc(track.label || track.language || ('Track ' + (i + 1))) + '</button>';
     });
@@ -1652,6 +1671,12 @@ class Player {
     this.pop.querySelectorAll('[data-native-sub]').forEach((el) => el.addEventListener('click', () => {
       const idx = Number(el.getAttribute('data-native-sub'));
       this.selectNativeTrack(idx);
+      // Persist the global textTrack index so refreshTracks() reapplies the same track.
+      const key = (this.item && this.item.key) || 'default';
+      const per = Object.assign({}, (this.opts.settings || {}).perChannelAudio || {});
+      per[key] = Object.assign({}, (per[key] || {}), { sub: idx });
+      this.opts.settings = Object.assign({}, this.opts.settings, { perChannelAudio: per });
+      this.opts.patchSettings && this.opts.patchSettings({ perChannelAudio: per });
       this.pop.hidden = true; this.popOwner = null;
     }));
     const more = this.pop.querySelector('[data-sub-more]');

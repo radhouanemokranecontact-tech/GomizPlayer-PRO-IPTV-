@@ -10,10 +10,23 @@ function works(bin) {
   const b = a.status === 0 ? spawnSync(bin, ['-y', '-loglevel', 'error', '-i', f, '-c', 'copy', '-f', 'mpegts', path.join(d, 'b.ts')]) : { status: 1 };
   fs.rmSync(d, { recursive: true, force: true }); return b.status === 0;
 }
+function resolveOnPath(cmd) {
+  const locator = process.platform === 'win32' ? 'where' : 'which';
+  const r = spawnSync(locator, [cmd], { encoding: 'utf8' });
+  if (r.status !== 0 || !r.stdout) return null;
+  return String(r.stdout).split(/\r?\n/).map((s) => s.trim()).filter(Boolean)[0] || null;
+}
 let ffmpeg = null; const cands = [process.env.FFMPEG_BIN]; try { cands.push(require('ffmpeg-static')); } catch (_) {}
-for (const p of ['/usr/local/bin/ffmpeg', '/usr/bin/ffmpeg']) cands.push(p);
+for (const p of ['/usr/local/bin/ffmpeg', '/usr/bin/ffmpeg', resolveOnPath('ffmpeg')]) if (p) cands.push(p);
 for (const c of cands) { if (works(c)) { ffmpeg = c; break; } }
-if (!ffmpeg) { console.log('SKIP no working ffmpeg available'); process.exit(0); }
+if (!ffmpeg) {
+  // A green CI gate must never hide a media test that did not actually run.
+  if (process.env.CI || process.env.FFMPEG_REQUIRED === '1') {
+    console.error('FAIL no working ffmpeg available (CI requires media verification)');
+    process.exit(1);
+  }
+  console.log('SKIP no working ffmpeg available'); process.exit(0);
+}
 console.log('using ffmpeg: ' + ffmpeg);
 // Make downloads.js use the verified binary in both installed and dependency-free test environments.
 // Intercept the package request before loading downloads.js; require.cache alone cannot

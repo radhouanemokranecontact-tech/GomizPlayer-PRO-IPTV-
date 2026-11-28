@@ -81,7 +81,13 @@ function register(deps) {
   ipcMain.handle('pro:health:summary', guard(({ sourceId }) => {
     const h = healthMap(); let ok = 0, dead = 0, unknown = 0, newest = 0;
     for (const it of allItems().filter((i) => i.kind === 'live' && !i.hiddenBase && !i.parental && (!sourceId || sourceId === 'all' || i.sourceId === sourceId))) {
-      const r = h[it.key]; if (!r) unknown++; else if (r.ok) ok++; else dead++; if (r && r.at > newest) newest = r.at;
+      // probe() uses ok:null for "cannot determine" (e.g. unsupported scheme).
+      // Those are unknown, not dead channels.
+      const r = h[it.key];
+      if (!r || r.ok === null || r.ok === undefined) unknown++;
+      else if (r.ok === true) ok++;
+      else dead++;
+      if (r && r.at > newest) newest = r.at;
     }
     return { ok, dead, unknown, lastScanAt: newest, running: !!run, hideDead: !!(store.settings && store.settings.proHideDead) };
   }));

@@ -129,7 +129,8 @@ contextBridge.exposeInMainWorld('api', {
   },
 
   appLock: {
-    verify: (pin) => invoke('applock:verify', pin)
+    verify: (pin) => invoke('applock:verify', pin),
+    set: (payload) => invoke('applock:set', payload)
   },
 
   window: {

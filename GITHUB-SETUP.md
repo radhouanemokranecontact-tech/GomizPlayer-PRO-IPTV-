@@ -33,7 +33,9 @@ npm run dist
 4. يتحقق المسار من الاختبارات ورقم الإصدار، يبني NSIS وPortable، يوقّع `latest.yml`، ويتحقق من التوقيع ثم ينشئ إصداراً مسودة يتضمن المثبّت والنسخة المحمولة وملف blockmap والبيان الموقّع.
 5. راجع المسودة وأصولها قبل نشرها. ملفات Windows لا تحمل توقيع Authenticode حالياً؛ قد يعرض Windows تحذير ناشر غير معروف.
 
-إذا لم يكن السر مضبوطاً، يفشل مسار الإصدار عمداً ولا ينشر بيان تحديث غير موقّع. نُشر `v2.0.2` للعامة مع manifest موقّع وأصوله الأربعة على [صفحة الإصدار](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.2).
+التوقيع المحلي اختياري؛ `npm run sign:manifest -- <path-to-private-key.pem>` يوقّع `dist/latest.yml`. يمكن أيضاً ضبط `UPDATE_SIGNING_PRIVATE_KEY` في البيئة واستخدام `npm run sign:manifest` مباشرة؛ يُحذف أي ملف مفتاح مؤقت بعد الانتهاء، ولا يُحفظ المفتاح الخاص في المستودع أبداً. تحقّق من البيان بـ `npm run verify:release-manifest -- dist/latest.yml`.
+
+إذا لم يكن السر مضبوطاً، يفشل مسار الإصدار عمداً ولا ينشر بيان تحديث غير موقّع. بيان `dist/latest.yml` المحلي غير موقّع، ولهذا يفحص `verify:release-manifest` البيان الموقّع الصادر عن CI فقط.
 
 ## English
 
@@ -68,4 +70,6 @@ npm run dist
 4. The workflow runs regression tests, builds Windows packages, signs and verifies `latest.yml`, and creates a draft release containing Setup, Portable, blockmap, and the signed manifest.
 5. Review the draft and its assets before publishing. Windows executables currently have no Authenticode signature, so Windows may show an unknown-publisher warning.
 
-If the secret is missing, the workflow intentionally stops rather than publishing an unsigned update manifest. `v2.0.2` is now publicly released with a signed manifest and all four assets on the [GitHub release page](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.2).
+For local signing, run `npm run sign:manifest -- <path-to-private-key.pem>` (or set `UPDATE_SIGNING_PRIVATE_KEY` in the environment and run `npm run sign:manifest`). Any temporary key file is deleted afterwards; the private key is never stored in the repository. Verify with `npm run verify:release-manifest -- dist/latest.yml`.
+
+If the secret is missing, the workflow intentionally stops rather than publishing an unsigned update manifest. The local `dist/latest.yml` is unsigned, so `verify:release-manifest` only passes for the CI-signed manifest produced by the release workflow.

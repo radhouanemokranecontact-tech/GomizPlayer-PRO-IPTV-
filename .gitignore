@@ -17,6 +17,10 @@ out/
 # Runtime data
 tools/telemetry-server/data/
 
+# Local reverse-engineering workspaces (tool-generated, never project sources)
+apktool_mcp_server_workspace/
+pyghidra_mcp_projects/
+
 # Secrets / local config
 .env
 .env.*
