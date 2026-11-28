@@ -88,6 +88,7 @@ const stamp = {
   version: release.version,
   releaseDate: release.releaseDate,
   reviewed: release.reviewed,
+  releasedAt: release.releasedAt || release.releaseDate,
   // In --check mode reuse the recorded commit so a new release commit itself
   // does not invalidate the generated docs.
   commit: checkOnly && storedState ? storedState.commit : commit,
@@ -104,7 +105,7 @@ const testRows = () => results.results.map((r) => `| ${r.name} | ${r.ok ? 'PASS'
 
 function repairReport() {
   return `# تقرير الإصلاح والتحقق — ${release.titleAr}\n\n` +
-`**الإصدار:** ${release.version} · **التاريخ:** ${release.reviewed} · **الحالة:** هذا هو التقرير الحالي الوحيد. تُؤرشف تقارير الإصدارات السابقة في \`docs/archive/reports/\` ولا تُترك في الموقع الحالي.\n\n` +
+`**الإصدار:** ${release.version} · **تاريخ الإصدار الموحّد:** ${release.releasedAt || release.releaseDate} · **الحالة:** هذا هو التقرير الحالي الوحيد. تُؤرشف تقارير الإصدارات السابقة في \`docs/archive/reports/\` ولا تُترك في الموقع الحالي.\n\n` +
 `## ملخص\n\n${release.summaryAr}\n\n` +
 `### الميزات\n\n${bullet(release.featuresAr)}\n\n` +
 `### الإصلاحات\n\n${bullet(release.fixesAr)}\n\n` +
@@ -119,7 +120,7 @@ function repairReport() {
 
 function resultsReport() {
   return `# تقرير نتائج اختبار الإصدار ${release.version}\n\n` +
-`**النطاق:** Windows x64 · **تاريخ المراجعة:** ${release.reviewed} · **النسخة:** ${release.version}\n\n` +
+`**النطاق:** Windows x64 · **تاريخ الإصدار الموحّد:** ${release.releasedAt || release.releaseDate} · **النسخة:** ${release.version}\n\n` +
 `هذا التقرير مُولَّد آلياً من \`docs/test-results.json\` و\`release.json\`؛ أي إصدار جديد يُعيد توليده ويُؤرشف هذا الملف تلقائياً.\n\n` +
 `## النتائج\n\n| الاختبار | النتيجة | المدة |\n|---|---|---|\n${testRows()}\n\n` +
 `**النتيجة الإجمالية:** ${results.passed}/${results.total} PASS، و${results.failed} FAIL.\n\n` +

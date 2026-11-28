@@ -1,6 +1,6 @@
 GomizPlayer PRO IPTV 2.0.5 — Windows x64
 
-Release date: 2026-11-28
+Canonical release timestamp (all docs and assets): 2026-11-28T12:30:16Z
 
 This release unifies version, date, tests, source hash and reports into one tracked release manifest (`release.json`). Every new version now regenerates its reports, archives the previous ones, and fails CI if reports are stale or Arabic text is mis-encoded.
 
@@ -31,7 +31,7 @@ Authoritative update assets (GitHub Actions build, Ed25519-signed manifest):
 - GomizPlayer-PRO-IPTV-Setup-2.0.5.exe.blockmap
 - latest.yml
 
-Locally built diagnostic copies (unsigned manifest, NOT for auto-update): files ending in -local and latest-local-unsigned.yml.
+All public installer assets are produced and uploaded by one GitHub Actions run, so they share a single release timestamp. The local build was verified locally (Setup, Portable, blockmap and SHA-512 manifest match) but is not attached to the public release to avoid mixed upload times. Source code archives are generated automatically by GitHub and may show a later time; that timestamp is controlled by GitHub, not by the project.
 
 Windows executables are not Authenticode-signed; Windows may show an unknown-publisher warning. No real IPTV provider or DRM support was tested.
 
@@ -41,7 +41,11 @@ Windows executables are not Authenticode-signed; Windows may show an unknown-pub
 -------
 إصدار GomizPlayer PRO IPTV 2.0.5 — Windows x64
 
+الوقت الموحّد للإصدار في كل الوثائق والأصول: 2026-11-28T12:30:16Z
+
 يوحّد هذا الإصدار رقم الإصدار والتاريخ والاختبارات وبصمة المصدر والتقارير في ملف واحد (`release.json`). مع كل إصدار جديد تُعاد توليد التقارير ويُؤرشف التقرير السابق، ويفشل CI إذا كانت التقارير قديمة أو إذا كان الترميز العربي مكسوراً.
+
+تُنشئ أصول التثبيت العامة وتُرفع كلها في سير GitHub Actions واحد، لذلك تشترك في وقت إصدار واحد. البناء المحلي تحقّق منه محلياً (Setup وPortable وblockmap ومطابقة SHA-512) لكنه لا يُرفق بالإصدار العام حتى لا تختلط أوقات الرفع. أرشيفا الشيفرة ينشئهما GitHub تلقائياً وقد يظهران بوقت لاحق؛ هذا خارج تحكم المشروع.
 
 الميزات:
 - مصادر M3U/M3U8 وXtream والرابط المباشر؛ بث مباشر وأفلام ومسلسلات ودليل ومفضلة وبحث وسجل.
@@ -67,7 +71,5 @@ Windows executables are not Authenticode-signed; Windows may show an unknown-pub
 - GomizPlayer-PRO-IPTV-Portable-2.0.5.exe
 - GomizPlayer-PRO-IPTV-Setup-2.0.5.exe.blockmap
 - latest.yml
-
-النسخ المحلية للتشخيص (بيان غير موقّع، غير مخصصة للتحديث التلقائي): الملفات المنتهية بـ -local وlatest-local-unsigned.yml.
 
 ملفات Windows غير موقّعة Authenticode، وقد يعرض Windows تحذير ناشر غير معروف. لم يُختبر بث مزوّد فعلي ولا دعم DRM.
