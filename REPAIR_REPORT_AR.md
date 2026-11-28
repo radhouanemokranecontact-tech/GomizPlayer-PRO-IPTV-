@@ -45,6 +45,11 @@
 - بناء Windows محلي 2.0.3: نجح (NSIS + Portable + blockmap)، وطابق `dist/latest.yml` الحجم وبصمة SHA-512 لملف Setup.
 - `verify:release-manifest` على `dist/latest.yml` المحلي يفشل متوقعاً لأن البيان المحلي غير موقّع؛ البيان الموقّع يُنشأ في CI بالسر `UPDATE_SIGNING_PRIVATE_KEY`.
 
+## النشر
+- نجح [سير CI](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46130450678) و[سير الإصدار](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46130458930).
+- نُشر [إصدار v2.0.3](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.3) بأصول CI الموقّعة، مع نسخ البناء المحلي موسومة بـ `-local`.
+- أُصلح إصدار v2.0.2 برفع أصوله ونشره.
+
 ## حدود
 - لم يُختبر البث مع مزوّد IPTV حقيقي؛ لا يُدّعى دعم DRM.
 - ملفات Windows غير موقعة Authenticode.

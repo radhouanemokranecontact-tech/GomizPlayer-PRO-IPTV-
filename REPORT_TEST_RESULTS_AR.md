@@ -27,7 +27,12 @@
 
 ## الإصدار على GitHub
 
-يُنشأ الإصدار عبر سير **Build PC release draft** في GitHub Actions: يجري الاختبارات، يبني الحزم، يوقّع `dist/latest.yml` باستخدام السر `UPDATE_SIGNING_PRIVATE_KEY`، يتحقق من التوقيع، ثم يرفع Setup وPortable وblockmap والبيان الموقّع. رابط التشغيل والإصدار يُحدَّث بعد اكتماله.
+| GitHub Actions — CI | PASS | [تشغيل ناجح 46130450678](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46130450678) |
+| GitHub Actions — الإصدار | PASS | [تشغيل ناجح 46130458930](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46130458930)؛ الاختبارات والبناء والتوقيع والتحقق ورفع الأصول |
+| التحقق من بيان CI الموقّع | PASS | `PASS release manifest signature v2.0.3` عند فحص `latest.yml` المرفوع |
+| نشر الإصدار | PASS | [إصدار v2.0.3 العام](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.3)؛ 8 أصول |
+
+أصول الإصدار الموقّعة المعتمدة للتحديث: Setup ‏151,061,713 بايت، Portable ‏134,942,995 بايت، blockmap ‏158,291 بايت، و`latest.yml` الموقّع. أضفنا أيضاً نسخ البناء المحلي باللاحقة `-local` و`latest-local-unsigned.yml` للتشخيص فقط؛ بيانها غير موقّع ولا يصلح للتحديث التلقائي. أُصلح أيضاً إصدار v2.0.2 برفع أصوله الأربعة ونشره بعد أن كان مسودة بلا أصول.
 
 ## حدود التغطية
 
@@ -52,4 +57,9 @@
 | Local manifest hash/size match | PASS | `dist/latest.yml` matches the Setup artifact |
 | Local `verify:release-manifest` | Expected FAIL | Local manifest is unsigned; CI signs it with the repository secret |
 
-GitHub release assets are produced by the release workflow with an Ed25519-signed `latest.yml`; the run and release links are recorded after completion. Windows binaries are not Authenticode-signed. No real IPTV provider or DRM support was tested.
+| GitHub Actions CI | PASS | [run 46130450678](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46130450678) |
+| GitHub Actions release | PASS | [run 46130458930](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46130458930): tests, build, signing, verification, asset upload |
+| Uploaded CI manifest | PASS | `PASS release manifest signature v2.0.3` |
+| Published release | PASS | [v2.0.3](https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.3) with 8 assets |
+
+Authoritative signed assets: Setup 151,061,713 bytes, Portable 134,942,995 bytes, blockmap 158,291 bytes, and signed `latest.yml`. The `-local` artifacts and `latest-local-unsigned.yml` are the locally built diagnostic copies and are not for auto-update. The earlier v2.0.2 draft was also repaired: its four verified assets were uploaded and the release published. Windows binaries are not Authenticode-signed. No real IPTV provider or DRM support was tested.
