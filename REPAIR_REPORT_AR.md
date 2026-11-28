@@ -59,8 +59,8 @@
 
 ## النشر
 
-- سير CI: —
-- الإصدار: —
+- سير CI: https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/actions/runs/46144557795
+- الإصدار: https://github.com/radhouanemokranecontact-tech/GomizPlayer-PRO-IPTV-/releases/tag/v2.0.5
 
 ## الارتباط بالمصدر
 

@@ -8,6 +8,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 const { spawnSync } = require('child_process');
 
 const root = path.resolve(__dirname, '..');
@@ -26,11 +27,39 @@ const headers = { Authorization: `Bearer ${auth}`, 'User-Agent': 'gomiz-release-
 const api = (p, opts = {}) => fetch(`https://api.github.com${p}`, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
 const check = (r, msg) => { if (!r.ok) throw new Error(`${msg}: HTTP ${r.status} ${r.statusText}`); return r; };
 
+// Large uploads over Node's fetch/HTTP2 can fail with ERR_HTTP2_STREAM_ERROR.
+// Use HTTP/1.1 streaming for assets; JSON API calls stay on fetch.
+function uploadAsset(name, filePath) {
+  return new Promise((resolve, reject) => {
+    const size = fs.statSync(filePath).size;
+    const target = `/repos/${owner}/${repo}/releases/${targetId}/assets?name=${encodeURIComponent(name)}`;
+    const req = https.request({
+      host: 'uploads.github.com', path: target, method: 'POST',
+      headers: {
+        Authorization: `Bearer ${auth}`, 'User-Agent': 'gomiz-release-sync',
+        Accept: 'application/vnd.github+json', 'Content-Type': 'application/octet-stream',
+        'Content-Length': size
+      }
+    }, (res) => {
+      let data = '';
+      res.on('data', (d) => { data += d; });
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve(JSON.parse(data));
+        else reject(new Error(`upload ${name}: HTTP ${res.statusCode} ${data}`));
+      });
+    });
+    req.on('error', reject);
+    fs.createReadStream(filePath).pipe(req);
+  });
+}
+let targetId = 0;
+
 (async () => {
   const list = check(await api(`/repos/${owner}/${repo}/releases?per_page=20`), 'list releases');
   const releases = await list.json();
   const target = releases.find((r) => r.tag_name === tag);
   if (!target) throw new Error(`release ${tag} not found; run the release workflow first`);
+  targetId = target.id;
   console.log(`found release ${tag} id=${target.id} assets=${target.assets.length}`);
 
   const dir = path.join(root, 'dist', 'v' + version);
@@ -42,20 +71,12 @@ const check = (r, msg) => { if (!r.ok) throw new Error(`${msg}: HTTP ${r.status}
   const existing = new Set(target.assets.map((a) => a.name));
   for (const [src, name] of local) {
     if (existing.has(name)) { console.log(`skip existing asset ${name}`); continue; }
-    const body = fs.readFileSync(path.join(dir, src));
-    const up = check(await api(`/repos/${owner}/${repo}/releases/${target.id}/assets?name=${encodeURIComponent(name)}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body
-    }), `upload ${name}`);
-    const a = await up.json();
+    const a = await uploadAsset(name, path.join(dir, src));
     console.log(`uploaded ${a.name} (${a.size} bytes)`);
   }
   const unsignedManifest = `latest-local-unsigned.yml`;
   if (!existing.has(unsignedManifest)) {
-    const body = fs.readFileSync(path.join(root, 'dist', 'latest.yml'));
-    const up = check(await api(`/repos/${owner}/${repo}/releases/${target.id}/assets?name=${encodeURIComponent(unsignedManifest)}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body
-    }), `upload ${unsignedManifest}`);
-    const a = await up.json();
+    const a = await uploadAsset(unsignedManifest, path.join(root, 'dist', 'latest.yml'));
     console.log(`uploaded ${a.name} (${a.size} bytes)`);
   }
 
@@ -72,4 +93,4 @@ const check = (r, msg) => { if (!r.ok) throw new Error(`${msg}: HTTP ${r.status}
   if (process.env.RELEASE_RUN_URL) release.runUrl = process.env.RELEASE_RUN_URL;
   fs.writeFileSync(releasePath, JSON.stringify(release, null, 2) + '\n', 'utf8');
   console.log('updated release.json with release URLs');
-})().catch((e) => { console.error('FAIL ' + e.message); process.exitCode = 1; });
+})().catch((e) => { console.error('FAIL ' + e.message + (e.cause ? ' :: ' + (e.cause.code || e.cause.message || e.cause) : '')); process.exitCode = 1; });
